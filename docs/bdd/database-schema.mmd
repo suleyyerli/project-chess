@@ -1,0 +1,96 @@
+flowchart TD
+
+    %% ========= TABLES ========= %%
+
+    USERS["USERS
+    -----------------------
+    id PK
+    email
+    password
+    pseudo
+    avatar
+    banner
+    emblem
+    trophy
+    nbgame
+    nbwin
+    nblose
+    nbdraw
+    bio
+    joinedAt
+    role
+    isactive
+    nbreport
+    isbanned
+    banreason
+    "]
+
+
+    PUZZLES["PUZZLES
+    -----------------------
+    id PK
+    fen
+    solution (JSONB)
+    elo
+    theme
+    createdAt
+    "]
+
+
+    MATCHES["MATCHES
+    -----------------------
+    id PK
+    mode
+    finishedAt
+    "]
+
+
+    MATCH_PLAYERS["MATCH_PLAYERS
+    -----------------------
+    id PK
+    match_id FK
+    user_id FK
+    isWinner
+    puzzlesSolved
+    trophiesDelta
+    "]
+
+
+    FRIENDS["FRIENDS
+    -----------------------
+    id PK
+    requester_id FK
+    receiver_id FK
+    status
+    createdAt
+    "]
+
+
+    REPORTS["REPORTS
+    -----------------------
+    id PK
+    reporter_id FK
+    reported_id FK
+    reason
+    createdAt
+    status
+    "]
+
+
+    %% ========= RELATIONS ========= %%
+
+    %% USERS - FRIENDS
+    USERS -- "1 .. n\n(requests)" --> FRIENDS
+    USERS -- "1 .. n\n(receives)" --> FRIENDS
+
+    %% USERS - REPORTS
+    USERS -- "1 .. n\n(reporter)" --> REPORTS
+    USERS -- "1 .. n\n(reported)" --> REPORTS
+
+    %% MATCHES - MATCH_PLAYERS
+    MATCHES -- "1 .. n" --> MATCH_PLAYERS
+
+    %% USERS - MATCH_PLAYERS
+    USERS -- "1 .. n" --> MATCH_PLAYERS
+
+    %% PUZZLES : aucune relation externe
