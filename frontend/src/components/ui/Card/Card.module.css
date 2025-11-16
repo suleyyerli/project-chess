@@ -1,0 +1,23 @@
+.card,
+.cardGray,
+.cardDark {
+  color: #fff;
+  padding: 1.2rem;
+  border-radius: 5px;
+}
+
+.card {
+  background-color: #272522;
+  border: 3px solid #00000020;
+  box-shadow: 0 4px 0px #00000040;
+}
+
+.cardGray {
+  background-color: #4d4d4d;
+  border: none;
+}
+
+.cardDark {
+  background-color: #272522;
+  border: none;
+}
