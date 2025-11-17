@@ -45,13 +45,13 @@ du 17 Novembre au 19 estimé 2 jours
 
 - Tableau qui affiche le classement en fonction du nombre de trophée.
 
-20 novembre estimé 0.5
+20 novembre estimé 1
 
 ### Ticket 4 page Landing
 
 - Formulaire plus titre formulaire sans l'authetification
 
-20 novembre estimé 0.5
+21 novembre estimé 1
 
 ### Ticket 5 page Home
 
@@ -60,4 +60,4 @@ du 17 Novembre au 19 estimé 2 jours
 - (Problème du jour si le temps) pas sur
 - (Liste amis) pas sur
 
-21 novembre au 22 estimé 1
+22 novembre au 23 estimé 1

@@ -1,0 +1,175 @@
+.title {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.subtitle {
+  margin: 0.2rem 0 1.5rem;
+  color: #b1b1b1;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.listItem {
+  margin: 0;
+  display: flex;
+}
+
+.banner {
+  --banner-start: #2f2f2f;
+  --banner-end: #1b1b1b;
+  --banner-border: rgba(255, 255, 255, 0.08);
+  --banner-shadow: rgba(0, 0, 0, 0.35);
+  width: 100%;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--banner-border);
+  background: linear-gradient(240deg, var(--banner-start), var(--banner-end));
+  box-shadow: 0 8px 18px var(--banner-shadow);
+  transition: transform 0.25s ease, box-shadow 0.3s ease;
+  padding: 0.9rem 1.15rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  box-sizing: border-box;
+}
+
+.banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 15% 30%,
+    rgba(255, 255, 255, 0.2),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.banner > * {
+  position: relative;
+  z-index: 1;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.label {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.requirement {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.description {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+
+.locked {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.banner:not(.locked):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.45);
+}
+
+/* Couleurs par rang — identiques à UserSkin */
+.rank-iron {
+  --banner-start: #6e6e6e;
+  --banner-end: #2b2b2b;
+  --banner-border: rgba(255, 255, 255, 0.15);
+}
+.rank-bronze {
+  --banner-start: #b5773b;
+  --banner-end: #4a2e1a;
+  --banner-border: rgba(255, 140, 78, 0.5);
+  --banner-shadow: rgba(181, 119, 59, 0.35);
+}
+.rank-silver {
+  --banner-start: #d7d7d7;
+  --banner-end: #989898;
+  --banner-border: rgba(255, 255, 255, 0.4);
+  --banner-shadow: rgba(180, 180, 180, 0.3);
+}
+.rank-gold {
+  --banner-start: #f7d264;
+  --banner-end: #d29528;
+  --banner-border: rgba(255, 221, 128, 0.7);
+  --banner-shadow: rgba(247, 210, 100, 0.4);
+}
+.rank-plat {
+  --banner-start: #3ef0d1;
+  --banner-end: #1a5f68;
+  --banner-border: rgba(62, 240, 209, 0.6);
+  --banner-shadow: rgba(26, 95, 104, 0.35);
+}
+.rank-diamond {
+  --banner-start: #5eb0ff;
+  --banner-end: #0e2b5c;
+  --banner-border: rgba(94, 176, 255, 0.6);
+  --banner-shadow: rgba(14, 43, 92, 0.4);
+}
+.rank-ascendant {
+  --banner-start: #6cf198;
+  --banner-end: #106241;
+  --banner-border: rgba(108, 241, 152, 0.6);
+  --banner-shadow: rgba(16, 98, 65, 0.4);
+}
+.rank-immortal {
+  --banner-start: #c06af7;
+  --banner-end: #3b0b4c;
+  --banner-border: rgba(192, 106, 247, 0.65);
+  --banner-shadow: rgba(59, 11, 76, 0.45);
+}
+.rank-radiant {
+  --banner-start: #fff2a8;
+  --banner-end: #d47c3a;
+  --banner-border: rgba(255, 242, 168, 0.65);
+  --banner-shadow: rgba(212, 124, 58, 0.4);
+}
+
+.rank-challenger {
+  --banner-start: #e30a17;
+  --banner-end: #840000;
+  --banner-border: rgba(227, 10, 23, 0.65);
+  --banner-shadow: rgba(132, 0, 0, 0.5);
+}
