@@ -11,3 +11,28 @@
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
 }
+
+.badgeRow {
+  display: flex;
+  justify-content: flex-start;
+}
+@media (min-width: 1200px) {
+  .page {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.gridbannemb {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: flex-start;
+}
+
+/* Quand l’écran devient trop étroit, on repasse à une colonne */
+@media (max-width: 720px) {
+  .gridbannemb {
+    grid-template-columns: 1fr;
+  }
+}

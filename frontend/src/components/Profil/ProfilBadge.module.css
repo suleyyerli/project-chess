@@ -1,0 +1,132 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  background: rgb(var(--r), var(--g), var(--b));
+  box-shadow: 0 0 var(--shadow-blur)
+    rgba(var(--r), var(--g), var(--b), var(--shadow-opacity));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  min-width: 220px;
+}
+
+.avatarWrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pseudo {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.trophy {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.emblem {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  margin-left: auto;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  object-fit: cover;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+}
+
+.rank-iron {
+  --r: 60;
+  --g: 60;
+  --b: 60;
+  --halo-opacity: 0;
+  --shadow-blur: 0px;
+  --shadow-opacity: 0;
+}
+.rank-bronze {
+  --r: 155;
+  --g: 107;
+  --b: 62;
+  --halo-opacity: 0.03;
+  --shadow-blur: 10px;
+  --shadow-opacity: 0.1;
+}
+.rank-silver {
+  --r: 210;
+  --g: 210;
+  --b: 210;
+  --halo-opacity: 0.05;
+  --shadow-blur: 15px;
+  --shadow-opacity: 0.15;
+}
+.rank-gold {
+  --r: 255;
+  --g: 220;
+  --b: 100;
+  --halo-opacity: 0.08;
+  --shadow-blur: 20px;
+  --shadow-opacity: 0.2;
+}
+.rank-plat {
+  --r: 40;
+  --g: 200;
+  --b: 180;
+  --halo-opacity: 0.12;
+  --shadow-blur: 25px;
+  --shadow-opacity: 0.25;
+}
+.rank-diamond {
+  --r: 70;
+  --g: 150;
+  --b: 255;
+  --halo-opacity: 0.18;
+  --shadow-blur: 35px;
+  --shadow-opacity: 0.3;
+}
+.rank-ascendant {
+  --r: 60;
+  --g: 210;
+  --b: 120;
+  --halo-opacity: 0.25;
+  --shadow-blur: 45px;
+  --shadow-opacity: 0.35;
+}
+.rank-immortal {
+  --r: 180;
+  --g: 80;
+  --b: 255;
+  --halo-opacity: 0.35;
+  --shadow-blur: 60px;
+  --shadow-opacity: 0.45;
+}
+.rank-radiant {
+  --r: 255;
+  --g: 250;
+  --b: 180;
+  --halo-opacity: 0.5;
+  --shadow-blur: 80px;
+  --shadow-opacity: 0.55;
+}

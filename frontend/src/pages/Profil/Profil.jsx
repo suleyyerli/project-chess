@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { getUserById } from "../../api/apiUsers";
 import HeroProfil from "../../components/Profil/HeroProfil";
 import StatsProfil from "../../components/Profil/StatsProfil";
+import BannerProfil from "../../components/Profil/BannerProfil";
+import Embleme from "../../components/Profil/EmblemeProfil";
 
 import styles from "./Profil.module.css";
 
@@ -82,6 +84,11 @@ const Profil = () => {
         nblose={user.nblose}
         nbdraw={user.nbdraw}
       />
+
+      <div className={styles.gridbannemb}>
+        <BannerProfil nbgame={user.nbgame} />
+        <Embleme nbtrophy={user.nbtrophy} trophy={user.trophy} />
+      </div>
     </div>
   );
 };
