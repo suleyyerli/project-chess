@@ -1,0 +1,224 @@
+.skin {
+  --banner-start: #2f2f2f;
+  --banner-end: #1b1b1b;
+  --banner-border: rgba(255, 255, 255, 0.08);
+  --banner-shadow: rgba(0, 0, 0, 0.35);
+  --avatar-size: 52px;
+  --emblem-size: 54px;
+  --pseudo-size: 1rem;
+  --trophy-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  max-width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--banner-border);
+  background: linear-gradient(240deg, var(--banner-start), var(--banner-end));
+  box-shadow: 0 6px 14px var(--banner-shadow);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.skin::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 15% 30%,
+    rgba(255, 255, 255, 0.18),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.skin > * {
+  position: relative;
+  z-index: 1;
+}
+
+.sizeSM {
+  --avatar-size: 40px;
+  --emblem-size: 44px;
+  --pseudo-size: 0.95rem;
+  --trophy-size: 0.78rem;
+  gap: 0.65rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 10px;
+}
+
+.sizeMD {
+  --avatar-size: 52px;
+  --emblem-size: 54px;
+}
+
+.sizeLG {
+  --avatar-size: 62px;
+  --emblem-size: 66px;
+  --pseudo-size: 1.1rem;
+  --trophy-size: 0.95rem;
+  padding: 0.85rem 1.15rem;
+  border-radius: 10px;
+}
+
+.avatarFrame {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid #b1b1b1;
+  background: #1c1c1c;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatarFallback {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.08em;
+}
+
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.pseudo {
+  font-weight: 700;
+  font-size: var(--pseudo-size);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.trophy {
+  font-size: var(--trophy-size);
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.emblemFrame {
+  width: var(--emblem-size);
+  height: var(--emblem-size);
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.emblemImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.emblemPlaceholder {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  padding: 0 0.4rem;
+}
+
+.bannerDefault {
+  --banner-start: #383838;
+  --banner-end: #1c1c1c;
+}
+
+.bannerIron {
+  --banner-start: #6e6e6e;
+  --banner-end: #2b2b2b;
+  --banner-border: rgba(255, 255, 255, 0.15);
+}
+
+.bannerBronze {
+  --banner-start: #b5773b;
+  --banner-end: #4a2e1a;
+  --banner-border: rgba(255, 140, 78, 0.5);
+  --banner-shadow: rgba(181, 119, 59, 0.35);
+}
+
+.bannerSilver {
+  --banner-start: #d7d7d7;
+  --banner-end: #989898;
+  --banner-border: rgba(255, 255, 255, 0.4);
+  --banner-shadow: rgba(180, 180, 180, 0.3);
+}
+
+.bannerGold {
+  --banner-start: #f7d264;
+  --banner-end: #d29528;
+  --banner-border: rgba(255, 221, 128, 0.7);
+  --banner-shadow: rgba(247, 210, 100, 0.4);
+}
+
+.bannerPlat {
+  --banner-start: #3ef0d1;
+  --banner-end: #1a5f68;
+  --banner-border: rgba(62, 240, 209, 0.6);
+  --banner-shadow: rgba(26, 95, 104, 0.35);
+}
+
+.bannerDiamond {
+  --banner-start: #5eb0ff;
+  --banner-end: #0e2b5c;
+  --banner-border: rgba(94, 176, 255, 0.6);
+  --banner-shadow: rgba(14, 43, 92, 0.4);
+}
+
+.bannerAscendant {
+  --banner-start: #6cf198;
+  --banner-end: #106241;
+  --banner-border: rgba(108, 241, 152, 0.6);
+  --banner-shadow: rgba(16, 98, 65, 0.4);
+}
+
+.bannerImmortal {
+  --banner-start: #c06af7;
+  --banner-end: #3b0b4c;
+  --banner-border: rgba(192, 106, 247, 0.65);
+  --banner-shadow: rgba(59, 11, 76, 0.45);
+}
+
+.bannerRadiant {
+  --banner-start: #fff2a8;
+  --banner-end: #d47c3a;
+  --banner-border: rgba(255, 242, 168, 0.65);
+  --banner-shadow: rgba(212, 124, 58, 0.4);
+}
+
+.bannerChallenger {
+  --banner-start: #e30a17;
+  --banner-end: #840000;
+  --banner-border: rgba(227, 10, 23, 0.65);
+  --banner-shadow: rgba(132, 0, 0, 0.5);
+}
+
+@media (max-width: 560px) {
+  .skin {
+    padding: 0.4rem 0.65rem;
+    gap: 0.55rem;
+    border-radius: 10px;
+  }
+}

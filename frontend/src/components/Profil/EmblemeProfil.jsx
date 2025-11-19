@@ -1,5 +1,5 @@
 import Card from "../ui/Card/Card";
-import styles from "./EmblemeProfile.module.css";
+import styles from "./EmblemeProfil.module.css";
 import { EMBLEM_OPTIONS } from "./emblemConfig";
 import { RiLockFill } from "react-icons/ri";
 

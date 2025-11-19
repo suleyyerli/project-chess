@@ -4,7 +4,7 @@ import HeroProfil from "../../components/Profil/HeroProfil";
 import StatsProfil from "../../components/Profil/StatsProfil";
 import BannerProfil from "../../components/Profil/BannerProfil";
 import Embleme from "../../components/Profil/EmblemeProfil";
-
+import UserSkin from "../../components/UserSkin/UserSkin";
 import styles from "./Profil.module.css";
 
 const SIMULATED_USER_ID = 1;
@@ -83,6 +83,16 @@ const Profil = () => {
         nbwin={user.nbwin}
         nblose={user.nblose}
         nbdraw={user.nbdraw}
+      />
+
+      <UserSkin
+        className={styles.userSkin}
+        size="lg"
+        avatar={user.avatar}
+        pseudo={user.pseudo}
+        trophy={user.trophy}
+        banner={user.banner}
+        emblem={user.emblem}
       />
 
       <div className={styles.gridbannemb}>
