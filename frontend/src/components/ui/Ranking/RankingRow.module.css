@@ -1,0 +1,61 @@
+.row {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  align-items: center;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 1.2rem;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-weight: 700;
+  color: #1b1816;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.gold {
+  background: #ffd447;
+}
+
+.silver {
+  background: #c8c8c8;
+  color: #1b1816;
+}
+
+.bronze {
+  background: #b47b46;
+  color: #1b1816;
+}
+
+.default {
+  background: rgba(0, 0, 0, 0.4);
+  color: #f0f0f0;
+}
+
+.userSkin {
+  width: 100%;
+}
+
+@media (max-width: 560px) {
+  .row {
+    grid-template-columns: 56px 1fr;
+    gap: 0.8rem;
+  }
+
+  .badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+}
