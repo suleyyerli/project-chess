@@ -10,13 +10,17 @@ sequenceDiagram
     participant S as API/Socket backend
     participant B as Joueur B (client)
 
-    A->>F: Clic "Duel"
-    F->>S: POST /matchmaking (token)
-    S-->>F: Accusé d'inscription en file
-    S-->>F: event match_found(roomId, premierPuzzleFEN, timer=120s)
-    F->>S: Socket join(roomId)
-    S-->>A: event start_game
-    S-->>B: event start_game
+    A->>F: Clique sur \"Défier B\" (liste joueurs en ligne)
+    F->>S: POST /duels/invitations {opponentId=B}
+    S-->>F: 201 {invitationId, status: \"sent\"}
+    S-->>B: event challenge_received(invitationId, from=A)
+    B->>S: PATCH /duels/invitations/:id {decision: \"accepted\"}
+    S-->>A: event challenge_response(invitationId, accepted, roomId)
+    S-->>B: event challenge_response(invitationId, accepted, roomId)
+    A->>S: Socket join(roomId)
+    B->>S: Socket join(roomId)
+    S-->>A: event start_game(premierPuzzleFEN, timer=120s)
+    S-->>B: event start_game(premierPuzzleFEN, timer=120s)
     loop Résolution d'un puzzle
         A->>S: event submit_move(solution)
         S->>S: Vérifie coup / solution, maj score/erreurs
