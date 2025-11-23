@@ -1,0 +1,80 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.actionsColumn,
+.centerColumn,
+.puzzleColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.welcomeCard h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.welcomeCard p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #e5e5e5;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.userSkin {
+  width: 100%;
+}
+
+.status {
+  margin: 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.statusError {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #ff8a80;
+  font-weight: 600;
+}
+
+.puzzleCard h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.puzzleCard p {
+  margin: 0;
+  color: #f0f0f0;
+  line-height: 1.4;
+}
+
+@media (max-width: 1024px) {
+  .dashboard {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .actions button {
+    flex: 1 1 180px;
+  }
+}
