@@ -20,7 +20,24 @@ export async function getUsersClassement() {
     return [];
   }
 }
+//POur la liste des joueurs actif
+export async function getActiveUsers() {
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok)
+      throw new Error("Erreur de chargement des utilisateurs actifs");
 
+    const data = await res.json();
+
+    // On conserve uniquement les joueurs actifs et non bannis, triés par trophées
+    return data
+      .filter((user) => user.isactive && user.isbanned === false)
+      .sort((a, b) => b.trophy - a.trophy);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des joueurs actifs :", error);
+    return [];
+  }
+}
 // pour la page profil
 export async function getUserById(userId) {
   try {
