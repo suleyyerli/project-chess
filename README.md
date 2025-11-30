@@ -64,5 +64,5 @@ npm run dev
 
 ## Ressources projet
 
-Consulter `docs/description-projet.md` pour la vision produit, `docs/diagrammes-sequence.md` pour les flows et `docs/JSONSERVER.md` pour un extrait des donnees mockees.
+Consulter `docs/description-projet.md` pour la vision produit, `docs/diagrammes-sequence.md`
 Dossier figma pour les maquettes et la charte graphique du projet.
