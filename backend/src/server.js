@@ -1,17 +1,23 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const healthRouter = require("./routes/health.routes");
+const prisma = require("./lib/prisma");
 
 dotenv.config();
 
 const app = express();
-
 app.use(express.json());
 
-// Routes
-app.use("/health", healthRouter);
+app.get("/health", async (req, res) => {
+  try {
+    // test DB
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: "ok", db: "connected" });
+  } catch (err) {
+    res.status(500).json({ status: "error", db: "disconnected" });
+  }
+});
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

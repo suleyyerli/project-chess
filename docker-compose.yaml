@@ -14,8 +14,11 @@ services:
     build: ./backend
     container_name: dev-chessbattle-backend
     env_file: ./backend/.env
+    volumes:
+      - ./backend:/app
     ports:
       - "4000:4000"
+      - "51212:51212"
     depends_on:
       - db
 
