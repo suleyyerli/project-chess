@@ -1,11 +1,14 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const prisma = require("./lib/prisma");
+const puzzleRoutes = require("./routes/puzzle.routes");
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+app.use("/puzzles", puzzleRoutes);
 
 app.get("/health", async (req, res) => {
   try {
