@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model friends {
+  id                                Int      @id @default(autoincrement())
+  requester_id                      Int
+  receiver_id                       Int
+  status                            String   @default("pending")
+  created_at                        DateTime @default(now()) @db.Timestamptz(6)
+  users_friends_receiver_idTousers  users    @relation("friends_receiver_idTousers", fields: [receiver_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_friends_requester_idTousers users    @relation("friends_requester_idTousers", fields: [requester_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([requester_id, receiver_id], map: "uq_friends_pair")
+  @@index([receiver_id], map: "idx_friends_receiver")
+  @@index([requester_id], map: "idx_friends_requester")
+  @@index([status], map: "idx_friends_status")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model match_players {
+  id             Int     @id @default(autoincrement())
+  match_id       Int
+  user_id        Int
+  is_winner      Boolean @default(false)
+  puzzles_solved Int     @default(0)
+  trophies_delta Int     @default(0)
+  matches        matches @relation(fields: [match_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users          users   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([match_id, user_id], map: "uq_match_players")
+  @@index([match_id], map: "idx_match_players_match_id")
+  @@index([user_id], map: "idx_match_players_user_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model matches {
+  id            Int             @id @default(autoincrement())
+  mode          String
+  finished_at   DateTime?       @db.Timestamptz(6)
+  match_players match_players[]
+
+  @@index([finished_at], map: "idx_matches_finished_at")
+}
+
+model puzzles {
+  id       Int      @id @default(autoincrement())
+  fen      String
+  solution Json
+  elo      Int
+  themes   String[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model puzzles_mate_raw {
+  fen    String?
+  moves  String?
+  rating Int?
+  themes String?
+
+  @@ignore
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reports {
+  id                               Int      @id @default(autoincrement())
+  reporter_id                      Int
+  reported_id                      Int
+  reason                           String
+  created_at                       DateTime @default(now()) @db.Timestamptz(6)
+  status                           String   @default("pending")
+  users_reports_reported_idTousers users    @relation("reports_reported_idTousers", fields: [reported_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_reports_reporter_idTousers users    @relation("reports_reporter_idTousers", fields: [reporter_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([reported_id], map: "idx_reports_reported_id")
+  @@index([reporter_id], map: "idx_reports_reporter_id")
+  @@index([status], map: "idx_reports_status")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model users {
+  id                                  Int             @id @default(autoincrement())
+  email                               String          @unique
+  password                            String
+  pseudo                              String          @unique
+  avatar                              String?
+  banner                              String?
+  emblem                              String?
+  trophy                              Int             @default(0)
+  nbgame                              Int             @default(0)
+  nbwin                               Int             @default(0)
+  nblose                              Int             @default(0)
+  nbdraw                              Int             @default(0)
+  bio                                 String?
+  joined_at                           DateTime        @default(now()) @db.Timestamptz(6)
+  role                                String          @default("user")
+  is_active                           Boolean         @default(true)
+  nbreport                            Int             @default(0)
+  is_banned                           Boolean         @default(false)
+  ban_reason                          String?
+  friends_friends_receiver_idTousers  friends[]       @relation("friends_receiver_idTousers")
+  friends_friends_requester_idTousers friends[]       @relation("friends_requester_idTousers")
+  match_players                       match_players[]
+  reports_reports_reported_idTousers  reports[]       @relation("reports_reported_idTousers")
+  reports_reports_reporter_idTousers  reports[]       @relation("reports_reporter_idTousers")
+
+  @@index([email], map: "idx_users_email")
+  @@index([pseudo], map: "idx_users_pseudo")
+}
