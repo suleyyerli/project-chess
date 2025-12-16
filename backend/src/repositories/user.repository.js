@@ -16,6 +16,12 @@ async function findByEmail(email) {
   });
 }
 
+async function findByPseudo(pseudo) {
+  return prisma.users.findUnique({
+    where: { pseudo },
+  });
+}
+
 async function create(data) {
   return prisma.users.create({
     data,
@@ -33,6 +39,7 @@ module.exports = {
   findAll,
   findById,
   findByEmail,
+  findByPseudo,
   create,
   update,
 };

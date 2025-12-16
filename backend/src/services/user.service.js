@@ -7,12 +7,12 @@ async function getUsers() {
 async function getUserById(id) {
   const userId = Number(id);
   if (!Number.isInteger(userId)) {
-    throw new Error("Id valide requis");
+    throw new Error("Identifiant valide requis");
   }
 
   const user = await userRepository.findById(userId);
   if (!user) {
-    throw new Error("User non troouvé");
+    throw new Error("Utilisateur non trouvé");
   }
 
   return user;
@@ -25,7 +25,7 @@ async function getUserByEmail(email) {
 
   const user = await userRepository.findByEmail(email);
   if (!user) {
-    throw new Error("User non trouvé");
+    throw new Error("Utilisateur non trouvé");
   }
 
   return user;
@@ -42,10 +42,10 @@ async function createUser(data) {
 async function updateUser(id, data) {
   const userId = Number(id);
   if (!Number.isInteger(userId)) {
-    throw new Error("UN id valid est requis");
+    throw new Error("Identifiant valide requis");
   }
   if (!data || Object.keys(data).length === 0) {
-    throw new Error("pas de données pour ce user");
+    throw new Error("Aucune donnée fournie pour mettre à jour l'utilisateur");
   }
 
   await getUserById(userId);
