@@ -1,10 +1,11 @@
+const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
 const prisma = require("./lib/prisma");
 const puzzleRoutes = require("./routes/puzzle.routes");
 const authRoutes = require("./routes/auth.routes");
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 app.use(express.json());

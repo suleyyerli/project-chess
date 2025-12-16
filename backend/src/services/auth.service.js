@@ -1,7 +1,22 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const userRepository = require("../repositories/user.repository");
 
 const SALT_ROUNDS = 10;
+const JWT_EXPIRES_IN = "7d";
+
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET manquant dans la configuration");
+  }
+  return secret;
+}
+
+function toSafeUser(user) {
+  const { password, ...safeUser } = user;
+  return safeUser;
+}
 
 async function signup(payload) {
   const { email, password, pseudo, ...rest } = payload || {};
@@ -31,11 +46,44 @@ async function signup(payload) {
     ...rest,
   });
 
-  // Do not leak hashed password to the caller
-  const { password: _password, ...safeUser } = created;
-  return safeUser;
+  return toSafeUser(created);
+}
+
+async function login(payload) {
+  const { email, password } = payload || {};
+
+  if (!email || !password) {
+    throw new Error("email et mot de passe sont requis");
+  }
+
+  const normalizedEmail = email.toLowerCase();
+  const user = await userRepository.findByEmail(normalizedEmail);
+
+  if (!user) {
+    throw new Error("Utilisateur introuvable");
+  }
+
+  const isValid = await bcrypt.compare(password, user.password);
+  if (!isValid) {
+    throw new Error("Mot de passe incorrect");
+  }
+
+  const secret = getJwtSecret();
+  const token = jwt.sign(
+    {
+      sub: user.id,
+      email: user.email,
+      pseudo: user.pseudo,
+      role: user.role,
+    },
+    secret,
+    { expiresIn: JWT_EXPIRES_IN }
+  );
+
+  return { token, user: toSafeUser(user) };
 }
 
 module.exports = {
   signup,
+  login,
 };
