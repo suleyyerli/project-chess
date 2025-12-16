@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userRepository = require("../repositories/user.repository");
+const userService = require("./user.service");
 
 const SALT_ROUNDS = 10;
 const JWT_EXPIRES_IN = "7d";
@@ -83,7 +84,18 @@ async function login(payload) {
   return { token, user: toSafeUser(user) };
 }
 
+async function getCurrentUser(userId) {
+  const user = await userService.getUserById(userId);
+  return userService.toPublicUser(user);
+}
+
+async function updateCurrentUser(userId, payload) {
+  return userService.updateProfile(userId, payload);
+}
+
 module.exports = {
   signup,
   login,
+  getCurrentUser,
+  updateCurrentUser,
 };

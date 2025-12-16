@@ -89,7 +89,7 @@ model users {
   email                               String          @unique
   password                            String
   pseudo                              String          @unique
-  avatar                              String?
+  avatar                              Bytes?
   banner                              String?
   emblem                              String?
   trophy                              Int             @default(0)

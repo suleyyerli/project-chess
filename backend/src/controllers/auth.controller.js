@@ -37,11 +37,40 @@ async function login(req, res) {
 }
 
 async function me(req, res) {
-  return res.json({ user: req.user });
+  try {
+    const user = await authService.getCurrentUser(req.user.id);
+    return res.json({ user });
+  } catch (error) {
+    const message = error?.message || "Échec de la récupération du profil";
+    return res.status(400).json({ message });
+  }
+}
+
+async function updateMe(req, res) {
+  try {
+    const user = await authService.updateCurrentUser(req.user.id, req.body);
+    return res.json({ user });
+  } catch (error) {
+    const message = error?.message || "Échec de la mise à jour du profil";
+    let status = 400;
+
+    if (message.includes("déjà utilisé")) {
+      status = 409;
+    }
+
+    return res.status(status).json({ message });
+  }
+}
+
+async function logout(req, res) {
+  // JWT est stateless : côté client, on supprime le token
+  return res.status(200).json({ message: "Déconnecté" });
 }
 
 module.exports = {
   signup,
   login,
   me,
+  updateMe,
+  logout,
 };
