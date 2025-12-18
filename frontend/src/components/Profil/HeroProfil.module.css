@@ -10,6 +10,7 @@
   height: 160px;
   overflow: hidden;
   border-radius: 5px;
+  position: relative;
 }
 
 .avatar {
@@ -28,6 +29,41 @@
   background: rgba(255, 255, 255, 0.06);
   font-weight: 700;
   font-size: 2rem;
+}
+
+.avatarEdit {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  cursor: pointer;
+}
+
+.avatarEdit:hover {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.avatarFileInput {
+  display: none;
+}
+
+.avatarSuccess {
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.avatarError {
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+  color: #ffb7b7;
 }
 
 .info {

@@ -8,7 +8,6 @@ const authRoutes = require("./routes/auth.routes");
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
-app.use(express.json());
 
 // Dev CORS: allow the Vite frontend to call the API from the browser
 app.use((req, res, next) => {
@@ -23,6 +22,9 @@ app.use((req, res, next) => {
   }
   return next();
 });
+
+// Allow bigger JSON bodies (base64 avatar upload)
+app.use(express.json({ limit: "5mb" }));
 
 app.use("/puzzles", puzzleRoutes);
 app.use("/auth", authRoutes);

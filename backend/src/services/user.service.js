@@ -88,8 +88,22 @@ async function updateProfile(userId, payload) {
     if (avatar === null) {
       avatarData = null;
     } else if (typeof avatar === "string") {
-      // attend une chaîne base64
-      avatarData = Buffer.from(avatar, "base64");
+      const trimmed = avatar.trim();
+      if (trimmed === "") {
+        avatarData = null;
+      } else if (/^data:image\//i.test(trimmed)) {
+        const base64 = trimmed.includes(",") ? trimmed.split(",").pop() : "";
+        if (!base64) {
+          throw new Error("Avatar invalide (data URL)");
+        }
+        avatarData = Buffer.from(base64, "base64");
+      } else {
+        if (/^https?:\/\//i.test(trimmed)) {
+          throw new Error("Avatar en URL non supporté (upload fichier uniquement)");
+        }
+        // attend une chaîne base64
+        avatarData = Buffer.from(trimmed, "base64");
+      }
     } else {
       throw new Error("Avatar doit être une chaîne encodée en base64 ou null");
     }

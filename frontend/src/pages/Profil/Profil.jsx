@@ -81,6 +81,10 @@ const Profil = () => {
           const { user: updatedUser } = await updateMe({ bio: nextBio });
           setUser(updatedUser);
         }}
+        onUpdateAvatar={async (nextAvatar) => {
+          const { user: updatedUser } = await updateMe({ avatar: nextAvatar });
+          setUser(updatedUser);
+        }}
       />
 
       <StatsProfil
