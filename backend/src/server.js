@@ -9,6 +9,9 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 
+// Serve uploaded files (avatars, etc.)
+app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
+
 // Dev CORS: allow the Vite frontend to call the API from the browser
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:5173");

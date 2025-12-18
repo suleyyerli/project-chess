@@ -115,7 +115,9 @@ const Profil = () => {
             setCosmeticError("");
             setSavingCosmetic(true);
             try {
-              const { user: updatedUser } = await updateMe({ banner: bannerId });
+              const { user: updatedUser } = await updateMe({
+                banner: bannerId,
+              });
               setUser(updatedUser);
             } catch (err) {
               setCosmeticError(
@@ -133,7 +135,9 @@ const Profil = () => {
             setCosmeticError("");
             setSavingCosmetic(true);
             try {
-              const { user: updatedUser } = await updateMe({ emblem: emblemId });
+              const { user: updatedUser } = await updateMe({
+                emblem: emblemId,
+              });
               setUser(updatedUser);
             } catch (err) {
               setCosmeticError(

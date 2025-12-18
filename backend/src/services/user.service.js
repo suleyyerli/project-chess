@@ -1,5 +1,7 @@
 const userRepository = require("../repositories/user.repository");
 const { presentUser } = require("../presenters/user.presenter");
+const fs = require("fs/promises");
+const path = require("path");
 
 async function getUsers() {
   return userRepository.findAll();
@@ -83,26 +85,65 @@ async function updateProfile(userId, payload) {
     }
   }
 
+  const avatarDir = path.resolve(__dirname, "../../uploads/avatars");
+  const avatarBase = `user-${id}`;
+
+  async function removeExistingAvatars() {
+    const candidates = [
+      path.join(avatarDir, `${avatarBase}.png`),
+      path.join(avatarDir, `${avatarBase}.jpg`),
+      path.join(avatarDir, `${avatarBase}.jpeg`),
+    ];
+    await Promise.all(
+      candidates.map(async (p) => {
+        try {
+          await fs.unlink(p);
+        } catch (err) {
+          if (err && err.code === "ENOENT") return;
+          throw err;
+        }
+      })
+    );
+  }
+
   let avatarData;
   if (avatar !== undefined) {
     if (avatar === null) {
       avatarData = null;
+      await removeExistingAvatars();
     } else if (typeof avatar === "string") {
       const trimmed = avatar.trim();
       if (trimmed === "") {
         avatarData = null;
+        await removeExistingAvatars();
       } else if (/^data:image\//i.test(trimmed)) {
+        const header = trimmed.split(",")[0] || "";
         const base64 = trimmed.includes(",") ? trimmed.split(",").pop() : "";
         if (!base64) {
           throw new Error("Avatar invalide (data URL)");
         }
-        avatarData = Buffer.from(base64, "base64");
+
+        const mimeMatch = header.match(/^data:(image\/[a-z0-9.+-]+);base64$/i);
+        const mime = mimeMatch?.[1]?.toLowerCase?.() ?? "image/png";
+        const ext = mime === "image/jpeg" ? "jpg" : "png";
+
+        const buffer = Buffer.from(base64, "base64");
+        await fs.mkdir(avatarDir, { recursive: true });
+        await removeExistingAvatars();
+        await fs.writeFile(path.join(avatarDir, `${avatarBase}.${ext}`), buffer);
+
+        // Store on filesystem: do not store binary in DB
+        avatarData = null;
       } else {
         if (/^https?:\/\//i.test(trimmed)) {
           throw new Error("Avatar en URL non supporté (upload fichier uniquement)");
         }
         // attend une chaîne base64
-        avatarData = Buffer.from(trimmed, "base64");
+        const buffer = Buffer.from(trimmed, "base64");
+        await fs.mkdir(avatarDir, { recursive: true });
+        await removeExistingAvatars();
+        await fs.writeFile(path.join(avatarDir, `${avatarBase}.png`), buffer);
+        avatarData = null;
       }
     } else {
       throw new Error("Avatar doit être une chaîne encodée en base64 ou null");

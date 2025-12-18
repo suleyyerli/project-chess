@@ -64,6 +64,29 @@ function bytesToAvatar(value) {
   return `data:${mime};base64,${base64}`;
 }
 
+function getAvatarFileUrl(userId) {
+  if (!userId) return null;
+  const fs = require("fs");
+  const path = require("path");
+
+  const baseDir = path.resolve(__dirname, "../../uploads/avatars");
+  const candidates = ["png", "jpg", "jpeg"];
+
+  for (const ext of candidates) {
+    const filePath = path.join(baseDir, `user-${userId}.${ext}`);
+    try {
+      if (!fs.existsSync(filePath)) continue;
+      const stat = fs.statSync(filePath);
+      const version = Math.floor(stat.mtimeMs);
+      return `/uploads/avatars/user-${userId}.${ext}?v=${version}`;
+    } catch {
+      // ignore
+    }
+  }
+
+  return null;
+}
+
 function toIsoString(value) {
   if (!value) return null;
   if (value instanceof Date) return value.toISOString();
@@ -74,13 +97,16 @@ function toIsoString(value) {
 function presentUser(user) {
   if (!user) return null;
 
+  const avatarFromFs = getAvatarFileUrl(user.id);
+  const avatarFromDb = bytesToAvatar(user.avatar);
+
   return {
     pseudo: user.pseudo ?? null,
     email: user.email ?? null,
     bio: user.bio ?? null,
     banner: user.banner ?? null,
     emblem: user.emblem ?? null,
-    avatar: bytesToAvatar(user.avatar),
+    avatar: avatarFromFs ?? avatarFromDb,
     joinedAt: toIsoString(user.joined_at),
     stats: {
       trophy: typeof user.trophy === "number" ? user.trophy : 0,

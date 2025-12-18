@@ -1,13 +1,22 @@
 export function toImageSrc(value) {
   if (!value || typeof value !== "string") return null;
 
+  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
   if (
     value.startsWith("http://") ||
     value.startsWith("https://") ||
     value.startsWith("data:") ||
-    value.startsWith("/") ||
     value.startsWith("src/")
   ) {
+    return value;
+  }
+
+  if (value.startsWith("/uploads/")) {
+    return `${API_BASE}${value}`;
+  }
+
+  if (value.startsWith("/")) {
     return value;
   }
 
