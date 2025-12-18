@@ -1,4 +1,5 @@
 const userRepository = require("../repositories/user.repository");
+const { presentUser } = require("../presenters/user.presenter");
 
 async function getUsers() {
   return userRepository.findAll();
@@ -7,10 +8,7 @@ async function getUsers() {
 function toPublicUser(user) {
   if (!user) return user;
   const { password, ...rest } = user;
-  if (rest.avatar && Buffer.isBuffer(rest.avatar)) {
-    rest.avatar = rest.avatar.toString("base64");
-  }
-  return rest;
+  return presentUser(rest);
 }
 
 async function getUserById(id) {
@@ -67,8 +65,14 @@ async function updateProfile(userId, payload) {
     throw new Error("Identifiant valide requis");
   }
 
-  const { pseudo, bio, avatar } = payload || {};
-  if (pseudo === undefined && bio === undefined && avatar === undefined) {
+  const { pseudo, bio, avatar, banner, emblem } = payload || {};
+  if (
+    pseudo === undefined &&
+    bio === undefined &&
+    avatar === undefined &&
+    banner === undefined &&
+    emblem === undefined
+  ) {
     throw new Error("Aucune donnée fournie pour mettre à jour l'utilisateur");
   }
 
@@ -95,6 +99,20 @@ async function updateProfile(userId, payload) {
   if (pseudo !== undefined) updatePayload.pseudo = pseudo;
   if (bio !== undefined) updatePayload.bio = bio;
   if (avatar !== undefined) updatePayload.avatar = avatarData;
+  if (banner !== undefined) {
+    if (banner === null || typeof banner === "string") {
+      updatePayload.banner = banner;
+    } else {
+      throw new Error("Banner doit être une chaîne ou null");
+    }
+  }
+  if (emblem !== undefined) {
+    if (emblem === null || typeof emblem === "string") {
+      updatePayload.emblem = emblem;
+    } else {
+      throw new Error("Emblem doit être une chaîne ou null");
+    }
+  }
 
   const updated = await userRepository.update(id, updatePayload);
   return toPublicUser(updated);

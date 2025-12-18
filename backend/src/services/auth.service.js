@@ -47,7 +47,8 @@ async function signup(payload) {
     ...rest,
   });
 
-  return toSafeUser(created);
+  // On renvoie un user côté API (camelCase + stats)
+  return userService.toPublicUser(toSafeUser(created));
 }
 
 async function login(payload) {
@@ -81,7 +82,7 @@ async function login(payload) {
     { expiresIn: JWT_EXPIRES_IN }
   );
 
-  return { token, user: toSafeUser(user) };
+  return { token, user: userService.toPublicUser(toSafeUser(user)) };
 }
 
 async function getCurrentUser(userId) {
