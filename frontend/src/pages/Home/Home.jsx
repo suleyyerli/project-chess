@@ -4,10 +4,9 @@ import styles from "./Home.module.css";
 import Card from "../../components/ui/Card/Card";
 import Button from "../../components/ui/Button/Button";
 import UserSkin from "../../components/UserSkin/UserSkin";
-import { getUserById } from "../../api/apiUsers";
 import MatchHistory from "../../components/MatchHistory/MatchHistory";
-
-const SIMULATED_USER_ID = 1;
+import { getMe } from "../../api/authApi";
+import { getAuthToken } from "../../api/authStorage";
 
 const Home = () => {
   const [user, setUser] = useState(null);
@@ -17,8 +16,14 @@ const Home = () => {
 
   useEffect(() => {
     const loadUser = async () => {
+      const token = getAuthToken();
+      if (!token) {
+        navigate("/");
+        return;
+      }
+
       try {
-        const fetchedUser = await getUserById(SIMULATED_USER_ID);
+        const { user: fetchedUser } = await getMe(token);
         if (!fetchedUser) {
           setUserError("Utilisateur introuvable");
           return;
@@ -32,7 +37,7 @@ const Home = () => {
     };
 
     loadUser();
-  }, []);
+  }, [navigate]);
 
   const handleStartGame = () => {
     navigate("/game");
@@ -76,12 +81,12 @@ const Home = () => {
               size="lg"
               avatar={user.avatar}
               pseudo={user.pseudo}
-              trophy={user.trophy}
+              trophy={user.stats?.trophy}
               banner={user.banner}
               emblem={user.emblem}
             />
           )}
-          <MatchHistory userId={SIMULATED_USER_ID} />
+          <MatchHistory userId={null} />
         </div>
 
         <div className={styles.puzzleColumn}>

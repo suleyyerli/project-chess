@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { getUserById } from "../../api/apiUsers";
 import HeroProfil from "../../components/Profil/HeroProfil";
 import StatsProfil from "../../components/Profil/StatsProfil";
 import BannerProfil from "../../components/Profil/BannerProfil";
 import Embleme from "../../components/Profil/EmblemeProfil";
 import UserSkin from "../../components/UserSkin/UserSkin";
 import styles from "./Profil.module.css";
-
-const SIMULATED_USER_ID = 1;
+import { getMe } from "../../api/authApi";
+import { getAuthToken } from "../../api/authStorage";
+import { useNavigate } from "react-router-dom";
 
 const formatDate = (isoString) => {
   if (!isoString) return null;
@@ -23,12 +23,18 @@ const Profil = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadProfile = async () => {
+      const token = getAuthToken();
+      if (!token) {
+        navigate("/");
+        return;
+      }
+
       try {
-        const profile = await getUserById(SIMULATED_USER_ID);
-        console.log("Profil simulé :", profile);
+        const { user: profile } = await getMe(token);
         if (!profile) {
           setError("Profil introuvable");
           return;
@@ -42,7 +48,7 @@ const Profil = () => {
     };
 
     loadProfile();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return <p>Chargement du profil...</p>;
@@ -61,11 +67,7 @@ const Profil = () => {
     "Date d'inscription inconnue"
   }`;
 
-  const statusLabel = `Statut : ${user.isactive ? "En ligne" : "Hors ligne"}${
-    !user.isactive && formatDate(user.lastseen)
-      ? ` — Dernière activité le ${formatDate(user.lastseen)}`
-      : ""
-  }`;
+  const statusLabel = "Statut : connecté";
 
   return (
     <div className={styles.page}>
@@ -78,11 +80,11 @@ const Profil = () => {
       />
 
       <StatsProfil
-        trophy={user.trophy}
-        nbgame={user.nbgame}
-        nbwin={user.nbwin}
-        nblose={user.nblose}
-        nbdraw={user.nbdraw}
+        trophy={user.stats?.trophy}
+        nbgame={user.stats?.nbGame}
+        nbwin={user.stats?.nbWin}
+        nblose={user.stats?.nbLose}
+        nbdraw={user.stats?.nbDraw}
       />
 
       <UserSkin
@@ -90,14 +92,14 @@ const Profil = () => {
         size="lg"
         avatar={user.avatar}
         pseudo={user.pseudo}
-        trophy={user.trophy}
+        trophy={user.stats?.trophy}
         banner={user.banner}
         emblem={user.emblem}
       />
 
       <div className={styles.gridbannemb}>
-        <BannerProfil nbgame={user.nbgame} />
-        <Embleme nbtrophy={user.nbtrophy} trophy={user.trophy} />
+        <BannerProfil nbgame={user.stats?.nbGame} />
+        <Embleme trophy={user.stats?.trophy} />
       </div>
     </div>
   );

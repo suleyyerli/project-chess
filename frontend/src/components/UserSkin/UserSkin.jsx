@@ -1,4 +1,5 @@
 import styles from "./UserSkin.module.css";
+import { toImageSrc } from "../../utils/image";
 
 const bannerClassMap = {
   iron: styles.bannerIron,
@@ -38,6 +39,8 @@ const UserSkin = ({
   const normalizedBanner =
     typeof banner === "string" ? banner.toLowerCase() : "";
   const bannerClass = bannerClassMap[normalizedBanner] ?? styles.bannerDefault;
+  const avatarSrc = toImageSrc(avatar);
+  const emblemSrc = toImageSrc(emblem);
 
   const classes = [
     styles.skin,
@@ -51,9 +54,9 @@ const UserSkin = ({
   return (
     <article className={classes}>
       <div className={styles.avatarFrame} aria-hidden={!avatar}>
-        {avatar ? (
+        {avatarSrc ? (
           <img
-            src={avatar}
+            src={avatarSrc}
             alt={`Avatar de ${displayPseudo}`}
             className={styles.avatarImage}
             loading="lazy"
@@ -75,9 +78,9 @@ const UserSkin = ({
       </div>
 
       <div className={styles.emblemFrame}>
-        {emblem ? (
+        {emblemSrc ? (
           <img
-            src={emblem}
+            src={emblemSrc}
             alt={`Emblème de ${displayPseudo}`}
             className={styles.emblemImage}
             loading="lazy"
