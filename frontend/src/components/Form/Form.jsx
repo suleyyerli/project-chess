@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Card from "../ui/Card/Card";
 import Button from "../ui/Button/Button";
 import styles from "./Form.module.css";
+import { login, signup } from "../../api/authApi";
+import { setAuthToken } from "../../api/authStorage";
 
 const initialData = {
   pseudo: "",
@@ -15,6 +18,8 @@ const Form = () => {
   const [formData, setFormData] = useState(initialData);
   const [error, setError] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const isRegister = mode === "register";
 
@@ -36,7 +41,7 @@ const Form = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
     setFeedback("");
@@ -56,13 +61,35 @@ const Form = () => {
       return;
     }
 
-    console.log(`[${mode}] données envoyées :`, formData);
-    setFeedback(
-      isRegister
-        ? "Compte prêt ! Nous connecterons cela au backend très bientôt."
-        : "Connexion simulée. Backend en préparation."
-    );
-    setFormData(initialData);
+    setIsSubmitting(true);
+    try {
+      if (isRegister) {
+        await signup({
+          email: formData.email,
+          pseudo: formData.pseudo,
+          password: formData.password,
+        });
+        setFeedback("Compte créé. Tu peux maintenant te connecter.");
+        setMode("login");
+        setFormData({ ...initialData, email: formData.email });
+      } else {
+        const result = await login({
+          email: formData.email,
+          password: formData.password,
+        });
+        if (!result?.token) {
+          throw new Error("Token manquant dans la réponse");
+        }
+        setAuthToken(result.token);
+        setFeedback("Connecté !");
+        setFormData(initialData);
+        navigate("/profil");
+      }
+    } catch (err) {
+      setError(err?.message || "Erreur lors de la requête");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -152,8 +179,15 @@ const Form = () => {
 
         <Button
           type="submit"
-          label={isRegister ? "Je m'inscris" : "Je me connecte"}
+          label={
+            isSubmitting
+              ? "En cours..."
+              : isRegister
+              ? "Je m'inscris"
+              : "Je me connecte"
+          }
           className={styles.submit}
+          disabled={isSubmitting}
         />
       </form>
     </Card>
