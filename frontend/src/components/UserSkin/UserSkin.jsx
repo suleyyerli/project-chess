@@ -1,5 +1,6 @@
 import styles from "./UserSkin.module.css";
 import { toImageSrc } from "../../utils/image";
+import { getEmblemById } from "../Profil/emblemConfig";
 
 const bannerClassMap = {
   iron: styles.bannerIron,
@@ -40,7 +41,9 @@ const UserSkin = ({
     typeof banner === "string" ? banner.toLowerCase() : "";
   const bannerClass = bannerClassMap[normalizedBanner] ?? styles.bannerDefault;
   const avatarSrc = toImageSrc(avatar);
-  const emblemSrc = toImageSrc(emblem);
+  const emblemSrc =
+    toImageSrc(emblem) ||
+    (typeof emblem === "string" ? toImageSrc(getEmblemById(emblem).image) : null);
 
   const classes = [
     styles.skin,

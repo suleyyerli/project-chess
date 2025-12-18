@@ -112,6 +112,22 @@
   box-shadow: 0 12px 22px rgba(0, 0, 0, 0.45);
 }
 
+.selected {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: -2px;
+}
+
+.equipped {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
 /* Couleurs par rang — identiques à UserSkin */
 .rank-iron {
   --banner-start: #6e6e6e;

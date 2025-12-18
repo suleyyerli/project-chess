@@ -23,6 +23,8 @@ const Profil = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [cosmeticError, setCosmeticError] = useState("");
+  const [savingCosmetic, setSavingCosmetic] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -106,9 +108,46 @@ const Profil = () => {
       />
 
       <div className={styles.gridbannemb}>
-        <BannerProfil nbgame={user.stats?.nbGame} />
-        <Embleme trophy={user.stats?.trophy} />
+        <BannerProfil
+          nbgame={user.stats?.nbGame}
+          selectedId={user.banner}
+          onSelect={async (bannerId) => {
+            setCosmeticError("");
+            setSavingCosmetic(true);
+            try {
+              const { user: updatedUser } = await updateMe({ banner: bannerId });
+              setUser(updatedUser);
+            } catch (err) {
+              setCosmeticError(
+                err?.message || "Impossible de mettre à jour la bannière"
+              );
+            } finally {
+              setSavingCosmetic(false);
+            }
+          }}
+        />
+        <Embleme
+          trophy={user.stats?.trophy}
+          selectedId={user.emblem}
+          onSelect={async (emblemId) => {
+            setCosmeticError("");
+            setSavingCosmetic(true);
+            try {
+              const { user: updatedUser } = await updateMe({ emblem: emblemId });
+              setUser(updatedUser);
+            } catch (err) {
+              setCosmeticError(
+                err?.message || "Impossible de mettre à jour l'emblème"
+              );
+            } finally {
+              setSavingCosmetic(false);
+            }
+          }}
+        />
       </div>
+
+      {savingCosmetic && <p>Enregistrement des cosmétiques…</p>}
+      {cosmeticError && <p>{cosmeticError}</p>}
     </div>
   );
 };
