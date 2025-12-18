@@ -66,3 +66,33 @@ npm run dev
 
 Consulter `docs/description-projet.md` pour la vision produit, `docs/diagrammes-sequence.md`
 Dossier figma pour les maquettes et la charte graphique du projet.
+
+## Backend : endpoints auth (Express)
+
+Le backend (dossier `backend/`) expose une API d’auth simple avec JWT (un seul token, pas de refresh token pour le moment).
+La documentation “ce qui a été fait” est dans `docs/auth-insomnia.md`.
+
+Base URL en local : `http://localhost:4000`
+
+Endpoints :
+
+- `POST /auth/signup` : créer un compte (renvoie l’utilisateur créé)
+- `POST /auth/login` : se connecter (renvoie `{ token, user }`)
+- `GET /auth/me` : récupérer mon profil (protégé)
+- `PUT /auth/me` : modifier mon profil (protégé)
+- `POST /auth/logout` : logout côté client (JWT stateless)
+
+### Exemple Bearer token
+
+Après un `login`, tu récupères un `token`. Ensuite, tu l’envoies dans le header :
+
+```http
+Authorization: Bearer <TOKEN>
+```
+
+Exemple rapide :
+
+```bash
+curl http://localhost:4000/auth/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
