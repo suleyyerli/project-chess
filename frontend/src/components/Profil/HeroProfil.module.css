@@ -47,6 +47,65 @@
   font-size: 1rem;
 }
 
+.bioBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bioLine {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bioValue {
+  margin: 0;
+  font-size: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bioPlaceholder {
+  opacity: 0.75;
+}
+
+.bioInput {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  padding: 0.35rem 0.6rem;
+  line-height: 1.2;
+}
+
+.bioIconButton {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.bioIconButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bioError {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #ffb7b7;
+}
+
 .meta {
   margin: 0;
   font-size: 0.95rem;

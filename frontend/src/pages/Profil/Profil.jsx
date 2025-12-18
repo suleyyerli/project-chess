@@ -5,7 +5,7 @@ import BannerProfil from "../../components/Profil/BannerProfil";
 import Embleme from "../../components/Profil/EmblemeProfil";
 import UserSkin from "../../components/UserSkin/UserSkin";
 import styles from "./Profil.module.css";
-import { getMe } from "../../api/authApi";
+import { getMe, updateMe } from "../../api/authApi";
 import { getAuthToken } from "../../api/authStorage";
 import { useNavigate } from "react-router-dom";
 
@@ -77,6 +77,10 @@ const Profil = () => {
         bio={user.bio}
         inscriptionLabel={inscriptionLabel}
         statusLabel={statusLabel}
+        onUpdateBio={async (nextBio) => {
+          const { user: updatedUser } = await updateMe({ bio: nextBio });
+          setUser(updatedUser);
+        }}
       />
 
       <StatsProfil
