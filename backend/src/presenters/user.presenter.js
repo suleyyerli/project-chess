@@ -101,6 +101,7 @@ function presentUser(user) {
   const avatarFromDb = bytesToAvatar(user.avatar);
 
   return {
+    id: user.id ?? null,
     pseudo: user.pseudo ?? null,
     email: user.email ?? null,
     bio: user.bio ?? null,

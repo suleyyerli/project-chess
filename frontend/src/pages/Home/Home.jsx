@@ -86,7 +86,7 @@ const Home = () => {
               emblem={user.emblem}
             />
           )}
-          <MatchHistory userId={null} />
+          <MatchHistory userId={user?.id ?? null} />
         </div>
 
         <div className={styles.puzzleColumn}>
