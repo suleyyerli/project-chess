@@ -22,11 +22,10 @@ function getAuthHeaders(token) {
 }
 
 export async function getMatchesByUser(userId) {
-  if (!userId) return [];
   const token = getAuthToken();
   if (!token) return [];
 
-  const queryUrl = `${API_URL}?_sort=finishedAt&_order=desc`;
+  const queryUrl = `${API_URL}/me`;
 
   try {
     const response = await fetch(queryUrl, {

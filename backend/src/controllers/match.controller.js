@@ -36,6 +36,17 @@ async function listMatches(req, res) {
   }
 }
 
+async function listMatchesForMe(req, res) {
+  try {
+    const matches = await matchService.listMatchesForUser(req.user.id);
+    return res.json(matches);
+  } catch (error) {
+    const message = error?.message || "Impossible de récupérer les matchs";
+    const status = mapErrorToStatus(message);
+    return res.status(status).json({ message });
+  }
+}
+
 async function getMatch(req, res) {
   try {
     const match = await matchService.getMatch(req.params.id, req.user.id);
@@ -101,6 +112,7 @@ async function finishMatch(req, res) {
 
 module.exports = {
   listMatches,
+  listMatchesForMe,
   getMatch,
   startSoloMatch,
   submitMatch,
