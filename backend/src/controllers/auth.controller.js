@@ -1,4 +1,5 @@
 const authService = require("../services/auth.service");
+const userService = require("../services/user.service");
 
 async function signup(req, res) {
   try {
@@ -63,6 +64,11 @@ async function updateMe(req, res) {
 }
 
 async function logout(req, res) {
+  try {
+    await userService.clearLastSeen(req.user.id);
+  } catch (error) {
+    console.warn("Failed to clear last_seen on logout:", error?.message || error);
+  }
   // JWT est stateless : côté client, on supprime le token
   return res.status(200).json({ message: "Déconnecté" });
 }

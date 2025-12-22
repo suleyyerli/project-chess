@@ -6,7 +6,11 @@ import Button from "../../components/ui/Button/Button";
 import FinishedModal from "../../components/ui/FinishedModal/FinishedModal";
 import Card from "../../components/ui/Card/Card";
 import ActivePlayersList from "../../components/ui/PlayerList/ActivePlayersList";
-import { getActiveUsers } from "../../api/apiUsers";
+import {
+  getActiveUsers,
+  setUserOnline,
+  setUserOffline,
+} from "../../api/apiUsers";
 import styles from "./Game.module.css";
 
 const Game = () => {
@@ -23,6 +27,22 @@ const Game = () => {
     };
 
     fetchPlayers();
+  }, []);
+
+  useEffect(() => {
+    const handlePageHide = () => {
+      setUserOffline({ keepalive: true });
+    };
+
+    setUserOnline();
+    window.addEventListener("pagehide", handlePageHide);
+    window.addEventListener("beforeunload", handlePageHide);
+
+    return () => {
+      handlePageHide();
+      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("beforeunload", handlePageHide);
+    };
   }, []);
 
   useEffect(() => {

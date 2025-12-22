@@ -1,5 +1,7 @@
 // src/api/apiUsers.js
 
+import { getAuthToken } from "./authStorage";
+
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 const USERS_URL = `${API_BASE}/users`;
 
@@ -44,4 +46,29 @@ export async function getUserById(userId) {
     console.error("Erreur lors du chargement du profil :", error);
     return null;
   }
+}
+
+async function postPresence(path, { keepalive = false } = {}) {
+  const token = getAuthToken();
+  if (!token) return;
+
+  try {
+    await fetch(`${USERS_URL}/${path}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      keepalive,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise a jour de la presence :", error);
+  }
+}
+
+export async function setUserOnline() {
+  return postPresence("online");
+}
+
+export async function setUserOffline({ keepalive = false } = {}) {
+  return postPresence("offline", { keepalive });
 }

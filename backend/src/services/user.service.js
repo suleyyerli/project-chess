@@ -186,19 +186,29 @@ async function updateProfile(userId, payload) {
 }
 
 async function getLeaderboardUsers() {
-  const users = await userRepository.findAll();
-  return users
-    .filter((user) => !user.is_banned)
-    .sort((a, b) => (b.trophy ?? 0) - (a.trophy ?? 0))
-    .map(toLeaderboardUser);
+  const users = await userRepository.findLeaderboard();
+  return users.map(toLeaderboardUser);
 }
 
 async function getActiveUsers() {
-  const users = await userRepository.findAll();
-  return users
-    .filter((user) => user.is_active && !user.is_banned)
-    .sort((a, b) => (b.trophy ?? 0) - (a.trophy ?? 0))
-    .map(toLeaderboardUser);
+  const users = await userRepository.findOnline();
+  return users.map(toLeaderboardUser);
+}
+
+async function touchLastSeen(userId) {
+  const id = Number(userId);
+  if (!Number.isInteger(id)) {
+    throw new Error("Identifiant valide requis");
+  }
+  await userRepository.updateLastSeen(id, new Date());
+}
+
+async function clearLastSeen(userId) {
+  const id = Number(userId);
+  if (!Number.isInteger(id)) {
+    throw new Error("Identifiant valide requis");
+  }
+  await userRepository.updateLastSeen(id, null);
 }
 
 module.exports = {
@@ -211,4 +221,6 @@ module.exports = {
   toPublicUser,
   getLeaderboardUsers,
   getActiveUsers,
+  touchLastSeen,
+  clearLastSeen,
 };

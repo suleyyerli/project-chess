@@ -31,8 +31,30 @@ async function getUserById(req, res) {
   }
 }
 
+async function setOnline(req, res) {
+  try {
+    await userService.touchLastSeen(req.user.id);
+    return res.json({ status: "online" });
+  } catch (error) {
+    const message = error?.message || "Impossible de mettre à jour la présence";
+    return res.status(400).json({ message });
+  }
+}
+
+async function setOffline(req, res) {
+  try {
+    await userService.clearLastSeen(req.user.id);
+    return res.json({ status: "offline" });
+  } catch (error) {
+    const message = error?.message || "Impossible de mettre à jour la présence";
+    return res.status(400).json({ message });
+  }
+}
+
 module.exports = {
   listLeaderboard,
   listActiveUsers,
   getUserById,
+  setOnline,
+  setOffline,
 };
