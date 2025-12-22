@@ -57,7 +57,13 @@ const MatchHistory = ({ userId }) => {
     };
   }, [userId]);
 
-  const rows = matches
+  const orderedMatches = [...matches].sort((a, b) => {
+    const aTime = a?.finishedAt ? Date.parse(a.finishedAt) : 0;
+    const bTime = b?.finishedAt ? Date.parse(b.finishedAt) : 0;
+    return bTime - aTime;
+  });
+
+  const rows = orderedMatches
     .map((match) => {
       if (!Array.isArray(match.players)) return null;
       const tracked = match.players.find((player) => player.userId === userId);
@@ -76,11 +82,17 @@ const MatchHistory = ({ userId }) => {
     })
     .filter(Boolean);
 
+  const visibleRows = Math.min(rows.length, 7);
+
   return (
     <Card className={styles.historyCard} variant="dark">
       <header className={styles.header}>
         <h3>Historique des parties</h3>
-        {rows.length > 0 && <span>{rows.length} entrées</span>}
+        {rows.length > 0 && (
+          <span>
+            {rows.length} {rows.length > 1 ? "parties" : "partie"}
+          </span>
+        )}
       </header>
 
       {loading && <p className={styles.status}>Chargement des matchs...</p>}
@@ -93,7 +105,10 @@ const MatchHistory = ({ userId }) => {
       )}
 
       {!loading && !error && rows.length > 0 && (
-        <div className={styles.tableWrapper}>
+        <div
+          className={styles.tableWrapper}
+          style={{ "--visible-rows": visibleRows }}
+        >
           <table className={styles.table}>
             <thead>
               <tr>

@@ -30,7 +30,29 @@
 }
 
 .tableWrapper {
+  --row-height: 2.5rem;
+  --header-height: 2.6rem;
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(
+    (var(--visible-rows, 7) * var(--row-height)) + var(--header-height)
+  );
+  scrollbar-width: thin;
+  scrollbar-color: #5c5c5c #2a2723;
+}
+
+.tableWrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tableWrapper::-webkit-scrollbar-track {
+  background: #2a2723;
+  border-radius: 999px;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb {
+  background: #5c5c5c;
+  border-radius: 999px;
 }
 
 .table {
@@ -44,11 +66,13 @@
   padding: 0.5rem 0.25rem;
   font-weight: 600;
   border-bottom: 1px solid #ffffff20;
+  height: var(--header-height);
 }
 
 .table td {
   padding: 0.5rem 0.25rem;
   border-bottom: 1px solid #ffffff10;
+  height: var(--row-height);
 }
 
 .trophies {
