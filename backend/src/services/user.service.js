@@ -3,6 +3,18 @@ const { presentUser } = require("../presenters/user.presenter");
 const fs = require("fs/promises");
 const path = require("path");
 
+function toLeaderboardUser(user) {
+  const presented = presentUser(user);
+  return {
+    id: presented?.id ?? null,
+    pseudo: presented?.pseudo ?? null,
+    avatar: presented?.avatar ?? null,
+    banner: presented?.banner ?? null,
+    emblem: presented?.emblem ?? null,
+    trophy: presented?.stats?.trophy ?? 0,
+  };
+}
+
 async function getUsers() {
   return userRepository.findAll();
 }
@@ -173,6 +185,22 @@ async function updateProfile(userId, payload) {
   return toPublicUser(updated);
 }
 
+async function getLeaderboardUsers() {
+  const users = await userRepository.findAll();
+  return users
+    .filter((user) => !user.is_banned)
+    .sort((a, b) => (b.trophy ?? 0) - (a.trophy ?? 0))
+    .map(toLeaderboardUser);
+}
+
+async function getActiveUsers() {
+  const users = await userRepository.findAll();
+  return users
+    .filter((user) => user.is_active && !user.is_banned)
+    .sort((a, b) => (b.trophy ?? 0) - (a.trophy ?? 0))
+    .map(toLeaderboardUser);
+}
+
 module.exports = {
   getUsers,
   getUserById,
@@ -181,4 +209,6 @@ module.exports = {
   updateUser,
   updateProfile,
   toPublicUser,
+  getLeaderboardUsers,
+  getActiveUsers,
 };

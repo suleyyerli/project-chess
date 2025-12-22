@@ -1,20 +1,17 @@
 // src/api/apiUsers.js
 
-const API_URL = "http://localhost:3000/users";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const USERS_URL = `${API_BASE}/users`;
+
 //pour la page classement
 export async function getUsersClassement() {
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(`${USERS_URL}/leaderboard`);
     if (!res.ok) throw new Error("Erreur de chargement des utilisateurs");
 
     const data = await res.json();
 
-    // On filtre les bannis et on trie par trophées décroissants
-    const users = data
-      .filter((user) => user.isbanned === false)
-      .sort((a, b) => b.trophy - a.trophy);
-
-    return users;
+    return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error("Erreur lors de la récupération des utilisateurs :", error);
     return [];
@@ -23,16 +20,13 @@ export async function getUsersClassement() {
 //POur la liste des joueurs actif
 export async function getActiveUsers() {
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(`${USERS_URL}/active`);
     if (!res.ok)
       throw new Error("Erreur de chargement des utilisateurs actifs");
 
     const data = await res.json();
 
-    // On conserve uniquement les joueurs actifs et non bannis, triés par trophées
-    return data
-      .filter((user) => user.isactive && user.isbanned === false)
-      .sort((a, b) => b.trophy - a.trophy);
+    return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error("Erreur lors de la récupération des joueurs actifs :", error);
     return [];
@@ -41,10 +35,10 @@ export async function getActiveUsers() {
 // pour la page profil
 export async function getUserById(userId) {
   try {
-    const res = await fetch(`${API_URL}?id=${userId}`);
+    const res = await fetch(`${USERS_URL}/${userId}`);
     if (!res.ok) throw new Error("Erreur lors de la récupération du profil");
 
-    const [user] = await res.json();
+    const user = await res.json();
     return user ?? null;
   } catch (error) {
     console.error("Erreur lors du chargement du profil :", error);
