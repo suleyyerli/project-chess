@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const prisma = require("./lib/prisma");
 const puzzleRoutes = require("./routes/puzzle.routes");
 const authRoutes = require("./routes/auth.routes");
+const matchRoutes = require("./routes/match.routes");
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
@@ -31,6 +32,7 @@ app.use(express.json({ limit: "5mb" }));
 
 app.use("/puzzles", puzzleRoutes);
 app.use("/auth", authRoutes);
+app.use("/matches", matchRoutes);
 
 app.get("/health", async (req, res) => {
   try {
