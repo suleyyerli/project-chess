@@ -3,11 +3,57 @@ import { Chess } from "chess.js";
 import { fetchPuzzleById } from "../api/puzzleApi";
 import { useGameStore } from "./useGameStore";
 
+function flipFenTurn(fen) {
+  if (typeof fen !== "string") return fen;
+  const parts = fen.trim().split(/\s+/);
+  if (parts.length < 2) return fen;
+  if (parts[1] === "w") {
+    parts[1] = "b";
+  } else if (parts[1] === "b") {
+    parts[1] = "w";
+  }
+  return parts.join(" ");
+}
+
+function getLastMoveColor(fen, moves) {
+  if (!fen || !Array.isArray(moves) || moves.length === 0) return null;
+  try {
+    const probe = new Chess(fen);
+    let last = null;
+    for (const move of moves) {
+      const result = probe.move(move, { sloppy: true });
+      if (!result) return null;
+      last = result.color;
+    }
+    return last;
+  } catch {
+    return null;
+  }
+}
+
+function resolveMatingColor(fen, moves) {
+  const direct = getLastMoveColor(fen, moves);
+  if (direct) {
+    return { color: direct, fen };
+  }
+
+  const flipped = flipFenTurn(fen);
+  if (flipped !== fen) {
+    const flippedColor = getLastMoveColor(flipped, moves);
+    if (flippedColor) {
+      return { color: flippedColor, fen: flipped };
+    }
+  }
+
+  return { color: null, fen };
+}
+
 export const useChessStore = create((set, get) => ({
   currentPuzzle: null,
   game: null,
   fen: "",
   currentStep: 0,
+  startStep: 0,
   playerColor: "white",
   boardOrientation: "white",
 
@@ -20,24 +66,40 @@ export const useChessStore = create((set, get) => ({
   },
 
   loadPuzzle(puzzle) {
-    const game = new Chess(puzzle.fen);
-    const turn = game.turn();
     const normalizedSolution =
       puzzle.solution?.map((move) => move.toLowerCase().replace(/\s+/g, "")) ??
       [];
+    const { color: matingColor, fen: resolvedFen } = resolveMatingColor(
+      puzzle.fen,
+      normalizedSolution
+    );
+    let fen = resolvedFen;
+    let game = new Chess(fen);
+    let startStep = 0;
+
+    if (matingColor && normalizedSolution.length > 0 && game.turn() !== matingColor) {
+      const preMove = game.move(normalizedSolution[0], { sloppy: true });
+      if (preMove) {
+        startStep = 1;
+        fen = game.fen();
+      }
+    }
+
+    const playerSide = matingColor ?? game.turn();
 
     set({
-      currentPuzzle: { ...puzzle, normalizedSolution },
+      currentPuzzle: { ...puzzle, fen, normalizedSolution },
       game,
-      fen: puzzle.fen,
-      currentStep: 0,
-      playerColor: turn === "w" ? "white" : "black",
-      boardOrientation: turn === "w" ? "white" : "black",
+      fen,
+      currentStep: startStep,
+      startStep,
+      playerColor: playerSide === "w" ? "white" : "black",
+      boardOrientation: playerSide === "w" ? "white" : "black",
     });
   },
 
   resetPuzzlePosition() {
-    const { currentPuzzle } = get();
+    const { currentPuzzle, startStep } = get();
     if (!currentPuzzle) {
       return;
     }
@@ -46,7 +108,7 @@ export const useChessStore = create((set, get) => ({
     set({
       game: reset,
       fen: reset.fen(),
-      currentStep: 0,
+      currentStep: startStep,
     });
   },
 

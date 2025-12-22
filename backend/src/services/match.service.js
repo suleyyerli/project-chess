@@ -3,7 +3,7 @@ const puzzleService = require("./puzzle.service");
 
 const DEFAULT_PACK_SIZE = 20;
 const DEFAULT_START_ELO = 399;
-const DEFAULT_STEP_ELO = 20;
+const DEFAULT_STEP_ELO = 30;
 const DEFAULT_MAX_ERRORS = 3;
 
 function toInt(value, label) {

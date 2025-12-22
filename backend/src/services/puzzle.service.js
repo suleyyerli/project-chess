@@ -32,12 +32,12 @@ function normalizeIdList(value) {
 async function generateProgressivePack({
   count = 20,
   startElo = 399,
-  stepElo = 20,
+  stepElo = 30,
   excludeIds = [],
 } = {}) {
   const total = Number.isInteger(count) && count > 0 ? count : 20;
   const baseElo = Number.isFinite(startElo) ? startElo : 399;
-  const step = Number.isFinite(stepElo) && stepElo > 0 ? stepElo : 20;
+  const step = Number.isFinite(stepElo) && stepElo > 0 ? stepElo : 30;
   const usedIds = new Set(normalizeIdList(excludeIds));
 
   const puzzles = [];
