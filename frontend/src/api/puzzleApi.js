@@ -1,6 +1,6 @@
 // src/api/puzzleApi.js
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 export async function fetchPuzzleById(id) {
   const res = await fetch(`${API_BASE}/puzzles?id=${id}`);

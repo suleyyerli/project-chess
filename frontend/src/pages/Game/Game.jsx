@@ -10,7 +10,7 @@ import { getActiveUsers } from "../../api/apiUsers";
 import styles from "./Game.module.css";
 
 const Game = () => {
-  const { status, startGame, score, errors } = useGameStore();
+  const { status, startGame, score, errors, endMatch } = useGameStore();
   const [activePlayers, setActivePlayers] = useState([]);
   const [loadingPlayers, setLoadingPlayers] = useState(true);
 
@@ -24,6 +24,30 @@ const Game = () => {
 
     fetchPlayers();
   }, []);
+
+  useEffect(() => {
+    if (status !== "running") return undefined;
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        endMatch("quit", { keepalive: true });
+      }
+    };
+
+    const handlePageHide = () => {
+      endMatch("quit", { keepalive: true });
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pagehide", handlePageHide);
+    window.addEventListener("beforeunload", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("beforeunload", handlePageHide);
+    };
+  }, [status, endMatch]);
 
   const handleChallenge = (player) => {
     console.log(`Défi simulé envoyé à ${player.pseudo}`);

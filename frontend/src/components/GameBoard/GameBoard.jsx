@@ -6,7 +6,7 @@ import Button from "../../components/ui/Button/Button";
 import styles from "./GameBoard.module.css";
 
 const GameBoard = () => {
-  const { timeLeft, score, errors, status, endMatch } = useGameStore();
+  const { timeLeft, score, errors, maxErrors, status, endMatch } = useGameStore();
   const handleAbandon = () => {
     if (status === "running") {
       endMatch("abandon");
@@ -21,7 +21,9 @@ const GameBoard = () => {
         <Turn side={sideToMove} />
         <p>⏱ Temps restant : {timeLeft}s</p>
         <p>🏆 Score : {score}</p>
-        <p>❌ Erreurs : {errors}/3</p>
+        <p>
+          ❌ Erreurs : {errors}/{maxErrors}
+        </p>
         <Button
           label="Abandonner"
           onClick={handleAbandon}
