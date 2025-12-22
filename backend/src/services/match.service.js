@@ -103,7 +103,10 @@ function toMatchHistory(match) {
   };
 }
 
-function calculateTrophiesDelta({ puzzlesSolved, isWinner }) {
+function calculateTrophiesDelta({ puzzlesSolved, isWinner, mode }) {
+  if (mode === "solo") {
+    return 0;
+  }
   if (!puzzlesSolved || puzzlesSolved <= 0) {
     return 0;
   }
@@ -116,7 +119,11 @@ async function finalizeMatch(match, userId, reason, stateOverride = null) {
   const outcome = normalizeOutcome(reason) || "abandon";
   const isWinner = outcome === "win";
   const puzzlesSolved = state.score;
-  const trophiesDelta = calculateTrophiesDelta({ puzzlesSolved, isWinner });
+  const trophiesDelta = calculateTrophiesDelta({
+    puzzlesSolved,
+    isWinner,
+    mode: match.mode,
+  });
   const finishedAt = new Date();
 
   const nextState = {
