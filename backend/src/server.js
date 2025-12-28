@@ -1,13 +1,17 @@
 const path = require("path");
+const http = require("http");
 const express = require("express");
 const dotenv = require("dotenv");
 const prisma = require("./lib/prisma");
+const { initSocket } = require("./socket");
 const puzzleRoutes = require("./routes/puzzle.routes");
 const authRoutes = require("./routes/auth.routes");
 const matchRoutes = require("./routes/match.routes");
 const userRoutes = require("./routes/user.routes");
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
+
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
 const app = express();
 
@@ -16,7 +20,7 @@ app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
 // Dev CORS: allow the Vite frontend to call the API from the browser
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.header("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
@@ -47,6 +51,9 @@ app.get("/health", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+const server = http.createServer(app);
+initSocket(server);
+
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
