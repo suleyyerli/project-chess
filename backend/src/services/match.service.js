@@ -226,9 +226,9 @@ async function getMatch(matchId, userId) {
   };
 }
 
-async function listMatchesForUser(userId) {
+async function listMatchesForUser(userId, { limit } = {}) {
   const playerId = toInt(userId, "Utilisateur");
-  const matches = await matchRepository.listByUser(playerId);
+  const matches = await matchRepository.listByUser(playerId, { limit });
   return matches.map(toMatchHistory);
 }
 

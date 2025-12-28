@@ -21,11 +21,13 @@ function getAuthHeaders(token) {
   };
 }
 
-export async function getMatchesByUser(userId) {
+export async function getMatchesByUser(userId, { limit } = {}) {
   const token = getAuthToken();
   if (!token) return [];
 
-  const queryUrl = `${API_URL}/me`;
+  const query =
+    Number.isInteger(limit) && limit > 0 ? `?limit=${limit}` : "";
+  const queryUrl = `${API_URL}/me${query}`;
 
   try {
     const response = await fetch(queryUrl, {

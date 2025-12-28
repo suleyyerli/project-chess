@@ -3,6 +3,8 @@ import Card from "../ui/Card/Card";
 import styles from "./MatchHistory.module.css";
 import { getMatchesByUser } from "../../api/apiMatches";
 
+const MATCH_HISTORY_LIMIT = 15;
+
 const formatResult = (isWinner) => (isWinner ? "Victoire" : "Défaite");
 
 const formatMode = (mode) => {
@@ -35,7 +37,9 @@ const MatchHistory = ({ userId }) => {
       setError(null);
 
       try {
-        const data = await getMatchesByUser(userId);
+        const data = await getMatchesByUser(userId, {
+          limit: MATCH_HISTORY_LIMIT,
+        });
         if (isMounted) {
           setMatches(data);
         }
@@ -63,7 +67,9 @@ const MatchHistory = ({ userId }) => {
     return bTime - aTime;
   });
 
-  const rows = orderedMatches
+  const recentMatches = orderedMatches.slice(0, MATCH_HISTORY_LIMIT);
+
+  const rows = recentMatches
     .map((match) => {
       if (!Array.isArray(match.players)) return null;
       const tracked = match.players.find((player) => player.userId === userId);

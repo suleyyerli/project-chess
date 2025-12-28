@@ -15,6 +15,15 @@ function withoutState(match) {
   return rest;
 }
 
+function parseLimit(value) {
+  if (value === undefined) return undefined;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error("Limite invalide");
+  }
+  return parsed;
+}
+
 async function listMatches(req, res) {
   try {
     const { id, userId } = req.query || {};
@@ -27,7 +36,10 @@ async function listMatches(req, res) {
       return res.json([withoutState(match)]);
     }
 
-    const matches = await matchService.listMatchesForUser(req.user.id);
+    const limit = parseLimit(req.query?.limit);
+    const matches = await matchService.listMatchesForUser(req.user.id, {
+      limit,
+    });
     return res.json(matches);
   } catch (error) {
     const message = error?.message || "Impossible de récupérer les matchs";
@@ -38,7 +50,10 @@ async function listMatches(req, res) {
 
 async function listMatchesForMe(req, res) {
   try {
-    const matches = await matchService.listMatchesForUser(req.user.id);
+    const limit = parseLimit(req.query?.limit);
+    const matches = await matchService.listMatchesForUser(req.user.id, {
+      limit,
+    });
     return res.json(matches);
   } catch (error) {
     const message = error?.message || "Impossible de récupérer les matchs";

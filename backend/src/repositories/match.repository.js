@@ -40,7 +40,7 @@ async function findByIdWithPlayers(matchId) {
   });
 }
 
-async function listByUser(userId) {
+async function listByUser(userId, { limit } = {}) {
   return prisma.matches.findMany({
     where: {
       match_players: {
@@ -59,6 +59,7 @@ async function listByUser(userId) {
     orderBy: {
       finished_at: "desc",
     },
+    ...(Number.isInteger(limit) ? { take: limit } : {}),
   });
 }
 
