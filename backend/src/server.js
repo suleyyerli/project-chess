@@ -7,6 +7,7 @@ const { initSocket } = require("./socket");
 const puzzleRoutes = require("./routes/puzzle.routes");
 const authRoutes = require("./routes/auth.routes");
 const matchRoutes = require("./routes/match.routes");
+const challengeRoutes = require("./routes/challenge.routes");
 const userRoutes = require("./routes/user.routes");
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
@@ -38,6 +39,7 @@ app.use(express.json({ limit: "5mb" }));
 app.use("/puzzles", puzzleRoutes);
 app.use("/auth", authRoutes);
 app.use("/matches", matchRoutes);
+app.use("/challenges", challengeRoutes);
 app.use("/users", userRoutes);
 
 app.get("/health", async (req, res) => {
