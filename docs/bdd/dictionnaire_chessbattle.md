@@ -74,6 +74,18 @@
 
 ---
 
+## Table : CHALLENGES
+
+| Champ        | Type                                | Null | Défaut   | Description           |
+| ------------ | ----------------------------------- | ---- | -------- | --------------------- |
+| id           | INT, PK                             | Non  | Auto     | Identifiant           |
+| from_user_id | INT, FK                             | Non  | –        | ID de l'expéditeur    |
+| to_user_id   | INT, FK                             | Non  | –        | ID du destinataire    |
+| status       | ENUM(PENDING, ACCEPTED, REFUSED)    | Non  | PENDING  | Statut du défi        |
+| createdAt    | DATETIME                            | Non  | NOW()    | Date de création      |
+
+---
+
 ## Table : REPORTS
 
 | Champ       | Type                                  | Null | Défaut  | Description             |

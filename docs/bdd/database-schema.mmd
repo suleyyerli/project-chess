@@ -66,6 +66,16 @@ flowchart TD
     "]
 
 
+    CHALLENGES["CHALLENGES
+    -----------------------
+    id PK
+    from_user_id FK
+    to_user_id FK
+    status
+    createdAt
+    "]
+
+
     REPORTS["REPORTS
     -----------------------
     id PK
@@ -82,6 +92,10 @@ flowchart TD
     %% USERS - FRIENDS
     USERS -- "1 .. n\n(requests)" --> FRIENDS
     USERS -- "1 .. n\n(receives)" --> FRIENDS
+
+    %% USERS - CHALLENGES
+    USERS -- "1 .. n\n(sent)" --> CHALLENGES
+    USERS -- "1 .. n\n(received)" --> CHALLENGES
 
     %% USERS - REPORTS
     USERS -- "1 .. n\n(reporter)" --> REPORTS

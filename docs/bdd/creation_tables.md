@@ -131,6 +131,46 @@ CREATE INDEX IF NOT EXISTS idx_friends_status
   ON friends(status);
 
 -- =========================
+-- CHALLENGES
+-- =========================
+CREATE TABLE IF NOT EXISTS challenges (
+  id            SERIAL PRIMARY KEY,
+  from_user_id  INTEGER NOT NULL,
+  to_user_id    INTEGER NOT NULL,
+
+  status        TEXT NOT NULL DEFAULT 'PENDING',
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT fk_challenges_from_user
+    FOREIGN KEY (from_user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_challenges_to_user
+    FOREIGN KEY (to_user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT challenges_no_self
+    CHECK (from_user_id <> to_user_id),
+
+  CONSTRAINT challenges_status_check
+    CHECK (status IN ('PENDING', 'ACCEPTED', 'REFUSED'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_challenges_from_user_id
+  ON challenges(from_user_id);
+
+CREATE INDEX IF NOT EXISTS idx_challenges_to_user_id
+  ON challenges(to_user_id);
+
+CREATE INDEX IF NOT EXISTS idx_challenges_status
+  ON challenges(status);
+
+CREATE INDEX IF NOT EXISTS idx_challenges_created_at
+  ON challenges(created_at);
+
+-- =========================
 -- REPORTS
 -- =========================
 CREATE TABLE IF NOT EXISTS reports (

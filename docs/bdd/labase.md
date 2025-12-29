@@ -12,6 +12,7 @@ La base de données de **ChessBattle** gère :
 - les utilisateurs\
 - les puzzles\
 - les amis\
+- les défis\
 - les signalements\
 - l'historique des matchs\
 
@@ -91,6 +92,16 @@ flowchart TD
     "]
 
 
+    CHALLENGES["CHALLENGES
+    -----------------------
+    id PK
+    from_user_id FK
+    to_user_id FK
+    status
+    createdAt
+    "]
+
+
     REPORTS["REPORTS
     -----------------------
     id PK
@@ -107,6 +118,10 @@ flowchart TD
     %% USERS - FRIENDS
     USERS -- "1 .. n\n(requests)" --> FRIENDS
     USERS -- "1 .. n\n(receives)" --> FRIENDS
+
+    %% USERS - CHALLENGES
+    USERS -- "1 .. n\n(sent)" --> CHALLENGES
+    USERS -- "1 .. n\n(received)" --> CHALLENGES
 
     %% USERS - REPORTS
     USERS -- "1 .. n\n(reporter)" --> REPORTS
@@ -129,13 +144,14 @@ La base de données de **ChessBattle** est conçue pour gérer :
 
 - les comptes utilisateurs
 - le système d’amis
+- les défis
 - les signalements
 - l’historique des parties
 - les puzzles d’échecs avec difficulté croissante
 - les statistiques des joueurs
 
-Le schéma est organisé en **6 tables principales** :  
-`USERS`, `PUZZLES`, `MATCHES`, `MATCH_PLAYERS`, `FRIENDS` et `REPORTS`.
+Le schéma est organisé en **7 tables principales** :  
+`USERS`, `PUZZLES`, `MATCHES`, `MATCH_PLAYERS`, `FRIENDS`, `CHALLENGES` et `REPORTS`.
 
 ---
 
@@ -152,6 +168,7 @@ La table **USERS** contient toutes les informations liées à un joueur :
 Chaque utilisateur peut :
 
 - envoyer ou recevoir des demandes d’amis
+- envoyer ou recevoir des défis
 - participer à plusieurs matchs
 - signaler ou être signalé par d’autres joueurs
 
@@ -231,7 +248,24 @@ Chaque relation contient :
 
 ---
 
-## 6. Table `REPORTS`
+## 6. Table `CHALLENGES`
+
+Gère les défis envoyés entre joueurs.
+
+Chaque défi contient :
+
+- un `from_user_id` (l’expéditeur)
+- un `to_user_id` (le destinataire)
+- un statut : `PENDING`, `ACCEPTED`, `REFUSED`
+
+**Cardinalités :**
+
+- 1 utilisateur → peut envoyer 0..n défis
+- 1 utilisateur → peut recevoir 0..n défis
+
+---
+
+## 7. Table `REPORTS`
 
 La table `REPORTS` gère les **signalements** entre utilisateurs.
 
@@ -252,6 +286,7 @@ Chaque report contient :
 ## Résumé simplifié des relations
 
 - **USERS ↔ FRIENDS** : gestion du réseau d’amis
+- **USERS ↔ CHALLENGES** : gestion des défis
 - **USERS ↔ REPORTS** : gestion des signalements
 - **MATCHES ↔ MATCH_PLAYERS ↔ USERS** : historique des parties
 - **PUZZLES** : catalogue indépendant pour les parties
