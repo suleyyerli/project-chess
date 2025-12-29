@@ -1,4 +1,5 @@
 const challengeService = require("../services/challenge.service");
+const { emitToUser, emitToUsers } = require("../socket");
 
 function mapErrorToStatus(message) {
   if (message.includes("introuvable") || message.includes("non trouvé")) return 404;
@@ -11,6 +12,7 @@ function mapErrorToStatus(message) {
 async function createChallenge(req, res) {
   try {
     const challenge = await challengeService.createChallenge(req.user.id, req.body);
+    emitToUser(challenge?.to?.id, "challenge:received", challenge);
     return res.status(201).json(challenge);
   } catch (error) {
     const message = error?.message || "Impossible de créer le défi";
@@ -36,6 +38,7 @@ async function acceptChallenge(req, res) {
       req.params.id,
       req.user.id
     );
+    emitToUsers([challenge?.from?.id, challenge?.to?.id], "challenge:accepted", challenge);
     return res.json(challenge);
   } catch (error) {
     const message = error?.message || "Impossible d'accepter le défi";
@@ -50,6 +53,7 @@ async function refuseChallenge(req, res) {
       req.params.id,
       req.user.id
     );
+    emitToUsers([challenge?.from?.id, challenge?.to?.id], "challenge:refused", challenge);
     return res.json(challenge);
   } catch (error) {
     const message = error?.message || "Impossible de refuser le défi";

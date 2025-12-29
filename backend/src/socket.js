@@ -49,6 +49,25 @@ const getUserSockets = (userId) => {
     .filter(Boolean);
 };
 
+const emitToUser = (userId, event, payload) => {
+  if (!io) {
+    return;
+  }
+  const socketIds = getUserSocketIds(userId);
+  socketIds.forEach((socketId) => {
+    io.to(socketId).emit(event, payload);
+  });
+};
+
+const emitToUsers = (userIds, event, payload) => {
+  const uniqueIds = new Set(
+    userIds
+      .map((id) => Number(id))
+      .filter((id) => Number.isInteger(id))
+  );
+  uniqueIds.forEach((id) => emitToUser(id, event, payload));
+};
+
 const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
@@ -66,10 +85,11 @@ const initSocket = (httpServer) => {
 
     try {
       const payload = jwt.verify(token, getJwtSecret());
-      if (!payload?.sub) {
+      const userId = Number(payload?.sub);
+      if (!Number.isInteger(userId)) {
         return next(new Error("Unauthorized"));
       }
-      socket.data.userId = payload.sub;
+      socket.data.userId = userId;
       return next();
     } catch (error) {
       return next(new Error("Unauthorized"));
@@ -107,4 +127,11 @@ const getIO = () => {
   return io;
 };
 
-module.exports = { initSocket, getIO, getUserSocketIds, getUserSockets };
+module.exports = {
+  initSocket,
+  getIO,
+  getUserSocketIds,
+  getUserSockets,
+  emitToUser,
+  emitToUsers,
+};
