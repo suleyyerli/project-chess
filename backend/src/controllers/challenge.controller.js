@@ -1,8 +1,10 @@
 const challengeService = require("../services/challenge.service");
 const matchMultiService = require("../services/match-multi.service");
+const puzzleService = require("../services/puzzle.service");
 const {
   emitToUser,
   emitToUsers,
+  getIO,
   joinUsersToRoom,
   startMatchTimer,
 } = require("../socket");
@@ -54,6 +56,25 @@ async function acceptChallenge(req, res) {
     );
     console.log(`Match created: ${match.matchId} room=${match.room} sockets=${socketsJoined}`);
     startMatchTimer(match.matchId);
+    const io = getIO();
+    io.to(match.room).emit("match:state", {
+      matchId: match.matchId,
+      state: match.state,
+    });
+    const firstPuzzleId = match.state?.puzzleIds?.[match.state?.currentIndex ?? 0];
+    if (Number.isInteger(firstPuzzleId)) {
+      try {
+        const puzzle = await puzzleService.getPuzzleById(firstPuzzleId);
+        io.to(match.room).emit("match:puzzle", {
+          matchId: match.matchId,
+          puzzleId: firstPuzzleId,
+          index: match.state?.currentIndex ?? 0,
+          puzzle,
+        });
+      } catch (puzzleError) {
+        console.warn("Puzzle initial introuvable pour le match", match.matchId);
+      }
+    }
     emitToUsers([challenge?.from?.id, challenge?.to?.id], "challenge:accepted", challenge);
     return res.json(challenge);
   } catch (error) {
