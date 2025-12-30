@@ -1,4 +1,5 @@
 const challengeService = require("../services/challenge.service");
+const matchMultiService = require("../services/match-multi.service");
 const { emitToUser, emitToUsers } = require("../socket");
 
 function mapErrorToStatus(message) {
@@ -37,6 +38,13 @@ async function acceptChallenge(req, res) {
     const challenge = await challengeService.acceptChallenge(
       req.params.id,
       req.user.id
+    );
+    const match = await matchMultiService.createMultiMatch({
+      fromUserId: challenge?.from?.id,
+      toUserId: challenge?.to?.id,
+    });
+    console.log(
+      `Match created: ${match.matchId} room=${match.room} sockets=${match.socketsJoined}`
     );
     emitToUsers([challenge?.from?.id, challenge?.to?.id], "challenge:accepted", challenge);
     return res.json(challenge);
