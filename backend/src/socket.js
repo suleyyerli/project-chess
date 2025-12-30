@@ -68,6 +68,27 @@ const emitToUsers = (userIds, event, payload) => {
   uniqueIds.forEach((id) => emitToUser(id, event, payload));
 };
 
+const joinUserSocketsToRoom = (userId, room) => {
+  const sockets = getUserSockets(userId);
+  sockets.forEach((socket) => {
+    socket.join(room);
+  });
+  return sockets.length;
+};
+
+const joinUsersToRoom = (userIds, room) => {
+  const uniqueIds = new Set(
+    userIds
+      .map((id) => Number(id))
+      .filter((id) => Number.isInteger(id))
+  );
+  let count = 0;
+  uniqueIds.forEach((id) => {
+    count += joinUserSocketsToRoom(id, room);
+  });
+  return count;
+};
+
 const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
@@ -134,4 +155,6 @@ module.exports = {
   getUserSockets,
   emitToUser,
   emitToUsers,
+  joinUserSocketsToRoom,
+  joinUsersToRoom,
 };
