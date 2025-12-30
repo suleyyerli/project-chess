@@ -4,6 +4,7 @@ import styles from "./FinishedModal.module.css";
 const FinishedModal = ({
   score,
   errors,
+  opponent,
   onReplay,
   onClose,
   title = "Partie terminé",
@@ -33,6 +34,20 @@ const FinishedModal = ({
           <p>
             <span className={styles.label}>Erreurs :</span> {errors}
           </p>
+          {opponent && (
+            <div className={styles.opponentBlock}>
+              <p className={styles.opponentTitle}>
+                {opponent.pseudo ?? "Adversaire"}
+              </p>
+              <p>
+                <span className={styles.label}>Score :</span> {opponent.score ?? 0}
+              </p>
+              <p>
+                <span className={styles.label}>Erreurs :</span>{" "}
+                {opponent.errors ?? 0}
+              </p>
+            </div>
+          )}
         </div>
         <div className={styles.actions}>
           {onClose && (

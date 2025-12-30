@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { useChessStore } from "./useChessStore";
+import { getSocket } from "../api/socket";
 import {
   finishMatch,
   getNextPuzzle,
@@ -8,6 +9,7 @@ import {
 } from "../api/apiMatches";
 
 const DEFAULT_TIME_LEFT = 2000;
+const DEFAULT_MULTI_TIME_LEFT = 120;
 
 function buildStateUpdate(serverState) {
   if (!serverState || typeof serverState !== "object") {
@@ -34,8 +36,22 @@ function stopTimer(get, set) {
   set({ timerId: null });
 }
 
+function normalizePlayerState(entry) {
+  return {
+    score: Number.isFinite(entry?.score) ? entry.score : 0,
+    errors: Number.isFinite(entry?.errors) ? entry.errors : 0,
+  };
+}
+
+function resolveOpponentId(players, selfId) {
+  if (!players || !selfId) return null;
+  const ids = Object.keys(players).map((id) => Number(id));
+  return ids.find((id) => Number.isInteger(id) && id !== selfId) ?? null;
+}
+
 export const useGameStore = create((set, get) => ({
   status: "idle", // idle | running | finished
+  mode: "solo", // solo | multi
   timeLeft: DEFAULT_TIME_LEFT,
   timerId: null,
   errors: 0,
@@ -44,6 +60,29 @@ export const useGameStore = create((set, get) => ({
   currentPuzzleId: null,
   matchId: null,
   result: null,
+  selfId: null,
+  opponent: null,
+  winnerId: null,
+  isDraw: false,
+
+  setSelfId(id) {
+    set({ selfId: Number.isInteger(id) ? id : null });
+  },
+
+  setOpponent(opponent) {
+    if (!opponent) {
+      set({ opponent: null });
+      return;
+    }
+    set({
+      opponent: {
+        id: opponent.id ?? null,
+        pseudo: opponent.pseudo ?? "Adversaire",
+        score: Number.isFinite(opponent.score) ? opponent.score : 0,
+        errors: Number.isFinite(opponent.errors) ? opponent.errors : 0,
+      },
+    });
+  },
 
   async startGame() {
     stopTimer(get, set);
@@ -59,11 +98,15 @@ export const useGameStore = create((set, get) => ({
 
       set({
         status: "running",
+        mode: "solo",
         timeLeft: DEFAULT_TIME_LEFT,
         timerId: null,
         currentPuzzleId: result.puzzle.id,
         matchId: result.matchId,
         result: null,
+        opponent: null,
+        winnerId: null,
+        isDraw: false,
         ...stateUpdate,
       });
 
@@ -72,6 +115,7 @@ export const useGameStore = create((set, get) => ({
       console.error("Unable to start match:", error);
       set({
         status: "idle",
+        mode: "solo",
         matchId: null,
         currentPuzzleId: null,
         result: "error",
@@ -80,6 +124,7 @@ export const useGameStore = create((set, get) => ({
   },
 
   startTimer() {
+    if (get().mode !== "solo") return;
     const id = setInterval(() => {
       const { timeLeft } = get();
       if (timeLeft <= 1) {
@@ -93,9 +138,122 @@ export const useGameStore = create((set, get) => ({
     set({ timerId: id });
   },
 
+  startMultiMatch({ matchId, state, opponent }) {
+    stopTimer(get, set);
+    const selfId = get().selfId;
+    const players = state?.players || {};
+    const selfState = normalizePlayerState(players?.[selfId]);
+    const opponentId =
+      opponent?.id ?? resolveOpponentId(players, selfId);
+    const opponentState = normalizePlayerState(players?.[opponentId]);
+
+    set({
+      status: "running",
+      mode: "multi",
+      matchId,
+      timeLeft: DEFAULT_MULTI_TIME_LEFT,
+      currentPuzzleId: state?.puzzleIds?.[state?.currentIndex ?? 0] ?? null,
+      score: selfState.score,
+      errors: selfState.errors,
+      maxErrors: Number.isFinite(state?.maxErrors) ? state.maxErrors : 3,
+      opponent: opponentId
+        ? {
+            id: opponentId,
+            pseudo: opponent?.pseudo ?? "Adversaire",
+            score: opponentState.score,
+            errors: opponentState.errors,
+          }
+        : opponent,
+      winnerId: null,
+      isDraw: false,
+      result: null,
+    });
+  },
+
+  updateMultiState(matchId, state) {
+    const selfId = get().selfId;
+    if (!selfId || !state) return;
+    const players = state.players || {};
+    const selfState = normalizePlayerState(players[selfId]);
+    const opponentId =
+      get().opponent?.id ?? resolveOpponentId(players, selfId);
+    const opponentState = normalizePlayerState(players[opponentId]);
+
+    set({
+      matchId,
+      score: selfState.score,
+      errors: selfState.errors,
+      maxErrors: Number.isFinite(state.maxErrors) ? state.maxErrors : get().maxErrors,
+      opponent: opponentId
+        ? {
+            id: opponentId,
+            pseudo: get().opponent?.pseudo ?? "Adversaire",
+            score: opponentState.score,
+            errors: opponentState.errors,
+          }
+        : get().opponent,
+    });
+  },
+
+  applyMultiPuzzle(puzzle) {
+    if (!puzzle) return;
+    useChessStore.getState().loadPuzzle(puzzle);
+    set({
+      currentPuzzleId: puzzle.id ?? null,
+    });
+  },
+
+  updateMultiTimer(timeLeft) {
+    if (!Number.isFinite(timeLeft)) return;
+    set({ timeLeft });
+  },
+
+  finishMultiMatch({ winnerId, isDraw, reason }) {
+    stopTimer(get, set);
+    const selfId = get().selfId;
+    const hasWinner = Number.isInteger(winnerId);
+    let result = reason || "ended";
+    if (isDraw) {
+      result = "draw";
+    } else if (hasWinner && selfId) {
+      result = winnerId === selfId ? "win" : "lose";
+    }
+
+    set({
+      status: "finished",
+      mode: "multi",
+      winnerId: winnerId ?? null,
+      isDraw: Boolean(isDraw),
+      result,
+    });
+  },
+
+  submitMultiResult(result) {
+    const { matchId, currentPuzzleId } = get();
+    const socket = getSocket();
+    if (!socket || !matchId || !currentPuzzleId) {
+      console.error("Socket ou matchId manquant pour match:submit");
+      return;
+    }
+
+    socket.emit(
+      "match:submit",
+      { matchId, puzzleId: currentPuzzleId, result },
+      (ack) => {
+        if (!ack?.ok) {
+          console.error("match:submit failed", ack?.message || "Erreur serveur");
+        }
+      }
+    );
+  },
+
   async onPuzzleSolved() {
     const { status, matchId, currentPuzzleId } = get();
     if (status !== "running" || !matchId || !currentPuzzleId) return;
+    if (get().mode === "multi") {
+      get().submitMultiResult(true);
+      return;
+    }
 
     try {
       const result = await submitMatchResult(matchId, {
@@ -124,6 +282,10 @@ export const useGameStore = create((set, get) => ({
   async onPuzzleFailed() {
     const { status, matchId, currentPuzzleId } = get();
     if (status !== "running" || !matchId || !currentPuzzleId) return;
+    if (get().mode === "multi") {
+      get().submitMultiResult(false);
+      return;
+    }
 
     try {
       const result = await submitMatchResult(matchId, {
@@ -152,6 +314,11 @@ export const useGameStore = create((set, get) => ({
     if (get().status !== "running") return;
     stopTimer(get, set);
 
+    if (get().mode === "multi") {
+      set({ status: "finished", result: reason });
+      return;
+    }
+
     set({ status: "finished", result: reason });
 
     const { matchId } = get();
@@ -177,6 +344,7 @@ export const useGameStore = create((set, get) => ({
   async fetchNextPuzzle() {
     const { status, matchId } = get();
     if (status !== "running" || !matchId) return;
+    if (get().mode === "multi") return;
 
     try {
       const result = await getNextPuzzle(matchId);

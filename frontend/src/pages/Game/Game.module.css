@@ -55,6 +55,36 @@
   color: #b1b1b1;
 }
 
+.challengeBlock {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.challengeTitle {
+  margin: 0;
+  font-weight: 600;
+}
+
+.challengeText {
+  margin: 0;
+  color: #d0c8b8;
+}
+
+.challengeActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.challengeNotice {
+  margin: 0 0 0.75rem;
+  color: #b1b1b1;
+}
+
 .running {
   display: grid;
   grid-template-columns: auto auto;
