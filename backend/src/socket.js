@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
+const matchMultiService = require("./services/match-multi.service");
+const puzzleService = require("./services/puzzle.service");
 
 let io;
 const userSockets = new Map();
@@ -127,6 +129,61 @@ const initSocket = (httpServer) => {
 
     socket.on("ping", () => {
       socket.emit("pong");
+    });
+
+    socket.on("match:submit", async (payload, callback) => {
+      try {
+        const matchId = payload?.matchId ?? payload?.match_id;
+        const puzzleId = payload?.puzzleId ?? payload?.puzzle_id;
+        const result = payload?.result;
+
+        const outcome = await matchMultiService.submitMatchAction({
+          matchId,
+          userId,
+          puzzleId,
+          result,
+        });
+
+        const room = matchMultiService.getMatchRoom(outcome.matchId);
+
+        if (outcome.isCorrect) {
+          io.to(room).emit("match:score", {
+            matchId: outcome.matchId,
+            userId: outcome.userId,
+            score: outcome.score,
+          });
+        } else {
+          io.to(room).emit("match:error", {
+            matchId: outcome.matchId,
+            userId: outcome.userId,
+            errors: outcome.errors,
+            maxErrors: outcome.state.maxErrors,
+          });
+        }
+
+        io.to(room).emit("match:state", {
+          matchId: outcome.matchId,
+          state: outcome.state,
+        });
+
+        if (outcome.isCorrect && outcome.nextPuzzleId) {
+          const puzzle = await puzzleService.getPuzzleById(outcome.nextPuzzleId);
+          io.to(room).emit("match:puzzle", {
+            matchId: outcome.matchId,
+            puzzleId: outcome.nextPuzzleId,
+            index: outcome.state.currentIndex,
+            puzzle,
+          });
+        }
+
+        if (typeof callback === "function") {
+          callback({ ok: true });
+        }
+      } catch (error) {
+        if (typeof callback === "function") {
+          callback({ ok: false, message: error?.message || "Erreur serveur" });
+        }
+      }
     });
 
     socket.on("disconnect", (reason) => {

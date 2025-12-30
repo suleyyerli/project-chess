@@ -1,6 +1,5 @@
 const matchRepository = require("../repositories/match.repository");
 const puzzleService = require("./puzzle.service");
-const { joinUsersToRoom } = require("../socket");
 
 const matchStates = new Map();
 const DEFAULT_PACK_SIZE = 20;
@@ -33,6 +32,79 @@ function uniqueIds(values) {
     seen.add(value);
     return true;
   });
+}
+
+function normalizeState(rawState, playerIds) {
+  const state =
+    rawState && typeof rawState === "object" && !Array.isArray(rawState)
+      ? { ...rawState }
+      : {};
+
+  state.status = typeof state.status === "string" ? state.status : "waiting";
+  state.currentIndex = Number.isFinite(state.currentIndex) ? state.currentIndex : 0;
+  state.puzzleIds = Array.isArray(state.puzzleIds) ? state.puzzleIds : [];
+  state.packSize = Number.isFinite(state.packSize)
+    ? state.packSize
+    : DEFAULT_PACK_SIZE;
+  state.startElo = Number.isFinite(state.startElo)
+    ? state.startElo
+    : DEFAULT_START_ELO;
+  state.stepElo = Number.isFinite(state.stepElo) ? state.stepElo : DEFAULT_STEP_ELO;
+  state.maxErrors = Number.isFinite(state.maxErrors)
+    ? state.maxErrors
+    : DEFAULT_MAX_ERRORS;
+
+  const players = state.players && typeof state.players === "object" ? state.players : {};
+  const normalizedPlayers = {};
+
+  playerIds.forEach((playerId) => {
+    const entry = players[playerId] || {};
+    normalizedPlayers[playerId] = {
+      score: Number.isFinite(entry.score) ? entry.score : 0,
+      errors: Number.isFinite(entry.errors) ? entry.errors : 0,
+    };
+  });
+
+  state.players = normalizedPlayers;
+  return state;
+}
+
+function normalizeResult(value) {
+  if (typeof value === "boolean") return value;
+  if (value === 1 || value === 0) return Boolean(value);
+  if (value === null || value === undefined) return null;
+  const normalized = String(value).trim().toLowerCase();
+  if (["true", "1", "yes", "ok", "correct", "success", "win"].includes(normalized)) {
+    return true;
+  }
+  if (["false", "0", "no", "wrong", "fail", "lose"].includes(normalized)) {
+    return false;
+  }
+  return null;
+}
+
+async function loadMatch(matchId) {
+  const id = toInt(matchId, "Match");
+  const cachedState = matchStates.get(id);
+  if (cachedState) {
+    return { id, state: cachedState, playerIds: Object.keys(cachedState.players || {}) };
+  }
+
+  const match = await matchRepository.findByIdWithPlayers(id);
+  if (!match) {
+    throw new Error("Match introuvable");
+  }
+  if (match.mode !== "multi") {
+    throw new Error("Match invalide");
+  }
+
+  const playerIds = (match.match_players || [])
+    .map((player) => player.user_id)
+    .filter((value) => Number.isInteger(value));
+  const state = normalizeState(match.state, playerIds);
+  matchStates.set(match.id, state);
+
+  return { id: match.id, state, playerIds };
 }
 
 function buildInitialState(fromUserId, toUserId, puzzleIds) {
@@ -83,14 +155,83 @@ async function createMultiMatch({ fromUserId, toUserId }) {
 
   matchStates.set(match.id, state);
 
-  const room = getMatchRoom(match.id);
-  const socketsJoined = joinUsersToRoom([fromId, toId], room);
-
   return {
     matchId: match.id,
-    room,
     state,
-    socketsJoined,
+    room: getMatchRoom(match.id),
+  };
+}
+
+async function submitMatchAction({ matchId, userId, puzzleId, result }) {
+  const actorId = toInt(userId, "Utilisateur");
+  const { id, state } = await loadMatch(matchId);
+
+  if (!state.players?.[actorId]) {
+    throw new Error("Accès interdit");
+  }
+
+  const expectedPuzzleId = state.puzzleIds[state.currentIndex];
+  if (!Number.isInteger(expectedPuzzleId)) {
+    throw new Error("Aucun puzzle en attente");
+  }
+
+  const submittedPuzzleId =
+    puzzleId !== undefined && puzzleId !== null ? Number(puzzleId) : null;
+
+  if (!Number.isInteger(submittedPuzzleId)) {
+    throw new Error("PuzzleId invalide");
+  }
+
+  if (submittedPuzzleId !== expectedPuzzleId) {
+    throw new Error("Puzzle inattendu");
+  }
+
+  const isCorrect = normalizeResult(result);
+  if (isCorrect === null) {
+    throw new Error("Résultat invalide");
+  }
+
+  const playerState = state.players[actorId];
+
+  if (isCorrect) {
+    playerState.score += 1;
+    state.currentIndex += 1;
+  } else {
+    playerState.errors += 1;
+  }
+
+  if (state.status === "waiting") {
+    state.status = "running";
+  }
+
+  let nextPuzzleId = state.puzzleIds[state.currentIndex] ?? null;
+
+  if (isCorrect && nextPuzzleId === null) {
+    const extraPuzzles = await puzzleService.generateProgressivePack({
+      count: state.packSize,
+      startElo: state.startElo + state.stepElo * state.currentIndex,
+      stepElo: state.stepElo,
+      excludeIds: state.puzzleIds,
+    });
+
+    if (extraPuzzles.length > 0) {
+      const extraIds = uniqueIds(extraPuzzles.map((puzzle) => puzzle.id));
+      state.puzzleIds = state.puzzleIds.concat(extraIds);
+      nextPuzzleId = state.puzzleIds[state.currentIndex] ?? null;
+    }
+  }
+
+  matchStates.set(id, state);
+  await matchRepository.updateMatch(id, { state });
+
+  return {
+    matchId: id,
+    state,
+    userId: actorId,
+    isCorrect,
+    score: playerState.score,
+    errors: playerState.errors,
+    nextPuzzleId,
   };
 }
 
@@ -112,4 +253,5 @@ module.exports = {
   getMatchState,
   setMatchState,
   removeMatchState,
+  submitMatchAction,
 };
