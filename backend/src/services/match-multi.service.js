@@ -1,7 +1,12 @@
 const matchRepository = require("../repositories/match.repository");
+const puzzleService = require("./puzzle.service");
 const { joinUsersToRoom } = require("../socket");
 
 const matchStates = new Map();
+const DEFAULT_PACK_SIZE = 20;
+const DEFAULT_START_ELO = 399;
+const DEFAULT_STEP_ELO = 30;
+const DEFAULT_MAX_ERRORS = 3;
 
 function toInt(value, label) {
   const parsed = Number(value);
@@ -21,12 +26,25 @@ function getMatchRoom(matchId) {
   return `match:${matchId}`;
 }
 
-function buildInitialState(fromUserId, toUserId) {
+function uniqueIds(values) {
+  const seen = new Set();
+  return values.filter((value) => {
+    if (seen.has(value)) return false;
+    seen.add(value);
+    return true;
+  });
+}
+
+function buildInitialState(fromUserId, toUserId, puzzleIds) {
   return {
     status: "waiting",
     createdAt: toIsoString(new Date()),
     currentIndex: 0,
-    puzzleIds: [],
+    puzzleIds,
+    packSize: puzzleIds.length,
+    startElo: DEFAULT_START_ELO,
+    stepElo: DEFAULT_STEP_ELO,
+    maxErrors: DEFAULT_MAX_ERRORS,
     players: {
       [fromUserId]: { score: 0, errors: 0 },
       [toUserId]: { score: 0, errors: 0 },
@@ -42,7 +60,18 @@ async function createMultiMatch({ fromUserId, toUserId }) {
     throw new Error("Joueurs identiques");
   }
 
-  const state = buildInitialState(fromId, toId);
+  const puzzles = await puzzleService.generateProgressivePack({
+    count: DEFAULT_PACK_SIZE,
+    startElo: DEFAULT_START_ELO,
+    stepElo: DEFAULT_STEP_ELO,
+  });
+
+  if (!puzzles.length) {
+    throw new Error("Aucun puzzle disponible");
+  }
+
+  const puzzleIds = uniqueIds(puzzles.map((puzzle) => puzzle.id));
+  const state = buildInitialState(fromId, toId, puzzleIds);
 
   const match = await matchRepository.createMatch({
     mode: "multi",
