@@ -1,6 +1,11 @@
 const challengeService = require("../services/challenge.service");
 const matchMultiService = require("../services/match-multi.service");
-const { emitToUser, emitToUsers, joinUsersToRoom } = require("../socket");
+const {
+  emitToUser,
+  emitToUsers,
+  joinUsersToRoom,
+  startMatchTimer,
+} = require("../socket");
 
 function mapErrorToStatus(message) {
   if (message.includes("introuvable") || message.includes("non trouvé")) return 404;
@@ -48,6 +53,7 @@ async function acceptChallenge(req, res) {
       match.room
     );
     console.log(`Match created: ${match.matchId} room=${match.room} sockets=${socketsJoined}`);
+    startMatchTimer(match.matchId);
     emitToUsers([challenge?.from?.id, challenge?.to?.id], "challenge:accepted", challenge);
     return res.json(challenge);
   } catch (error) {

@@ -25,6 +25,13 @@ function getMatchRoom(matchId) {
   return `match:${matchId}`;
 }
 
+function normalizeFinishReason(value) {
+  if (typeof value === "string" && value.trim()) {
+    return value.trim();
+  }
+  return "timeout";
+}
+
 function uniqueIds(values) {
   const seen = new Set();
   return values.filter((value) => {
@@ -81,6 +88,34 @@ function normalizeResult(value) {
     return false;
   }
   return null;
+}
+
+function computeWinner(state) {
+  const entries = Object.entries(state.players || {});
+  if (entries.length === 0) {
+    return { winnerId: null, isDraw: true };
+  }
+
+  let bestScore = -1;
+  let winners = [];
+
+  entries.forEach(([id, playerState]) => {
+    const score = Number.isFinite(playerState?.score) ? playerState.score : 0;
+    if (score > bestScore) {
+      bestScore = score;
+      winners = [id];
+      return;
+    }
+    if (score === bestScore) {
+      winners.push(id);
+    }
+  });
+
+  if (winners.length !== 1) {
+    return { winnerId: null, isDraw: true };
+  }
+
+  return { winnerId: Number(winners[0]), isDraw: false };
 }
 
 async function loadMatch(matchId) {
@@ -166,6 +201,10 @@ async function submitMatchAction({ matchId, userId, puzzleId, result }) {
   const actorId = toInt(userId, "Utilisateur");
   const { id, state } = await loadMatch(matchId);
 
+  if (state.status === "finished") {
+    throw new Error("Match terminé");
+  }
+
   if (!state.players?.[actorId]) {
     throw new Error("Accès interdit");
   }
@@ -235,6 +274,55 @@ async function submitMatchAction({ matchId, userId, puzzleId, result }) {
   };
 }
 
+async function finishMatch({ matchId, reason }) {
+  const id = toInt(matchId, "Match");
+  const match = await matchRepository.findByIdWithPlayers(id);
+  if (!match) {
+    throw new Error("Match introuvable");
+  }
+
+  const playerIds = (match.match_players || [])
+    .map((player) => player.user_id)
+    .filter((value) => Number.isInteger(value));
+  const cachedState = matchStates.get(id);
+  const state = normalizeState(cachedState ?? match.state, playerIds);
+
+  if (state.status === "finished" || match.finished_at) {
+    matchStates.set(id, state);
+    return {
+      matchId: id,
+      state,
+      winnerId: state.winnerId ?? null,
+      isDraw: Boolean(state.isDraw),
+    };
+  }
+
+  const { winnerId, isDraw } = computeWinner(state);
+  const finishedAt = new Date();
+  const finalState = {
+    ...state,
+    status: "finished",
+    finishedReason: normalizeFinishReason(reason),
+    finishedAt: finishedAt.toISOString(),
+    winnerId,
+    isDraw,
+  };
+
+  await matchRepository.updateMatch(id, {
+    finished_at: finishedAt,
+    state: finalState,
+  });
+
+  matchStates.set(id, finalState);
+
+  return {
+    matchId: id,
+    state: finalState,
+    winnerId,
+    isDraw,
+  };
+}
+
 function getMatchState(matchId) {
   return matchStates.get(Number(matchId)) ?? null;
 }
@@ -249,6 +337,7 @@ function removeMatchState(matchId) {
 
 module.exports = {
   createMultiMatch,
+  finishMatch,
   getMatchRoom,
   getMatchState,
   setMatchState,

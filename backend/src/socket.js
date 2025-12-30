@@ -5,6 +5,9 @@ const puzzleService = require("./services/puzzle.service");
 
 let io;
 const userSockets = new Map();
+const matchTimers = new Map();
+const MATCH_DURATION_MS = Number(process.env.MATCH_DURATION_MS) || 120000;
+const MATCH_TIMER_TICK_MS = Number(process.env.MATCH_TIMER_TICK_MS) || 1000;
 
 const getJwtSecret = () => {
   const secret = process.env.JWT_SECRET;
@@ -89,6 +92,76 @@ const joinUsersToRoom = (userIds, room) => {
     count += joinUserSocketsToRoom(id, room);
   });
   return count;
+};
+
+const stopMatchTimer = (matchId) => {
+  const id = Number(matchId);
+  if (!Number.isInteger(id)) {
+    return false;
+  }
+  const timer = matchTimers.get(id);
+  if (!timer) {
+    return false;
+  }
+  clearInterval(timer.intervalId);
+  matchTimers.delete(id);
+  return true;
+};
+
+const emitMatchTimer = (matchId, timeLeftMs) => {
+  if (!io) {
+    return;
+  }
+  const timeLeft = Math.max(0, Math.ceil(timeLeftMs / 1000));
+  const room = matchMultiService.getMatchRoom(matchId);
+  io.to(room).emit("match:timer", { matchId, timeLeft });
+};
+
+const finishMatchByTimer = async (matchId) => {
+  if (!io) {
+    return;
+  }
+  const id = Number(matchId);
+  if (!Number.isInteger(id) || !matchTimers.has(id)) {
+    return;
+  }
+
+  stopMatchTimer(id);
+
+  const outcome = await matchMultiService.finishMatch({
+    matchId: id,
+    reason: "timeout",
+  });
+  const room = matchMultiService.getMatchRoom(id);
+  io.to(room).emit("match:ended", {
+    matchId: outcome.matchId,
+    state: outcome.state,
+    winnerId: outcome.winnerId,
+    isDraw: outcome.isDraw,
+    reason: outcome.state?.finishedReason ?? "timeout",
+  });
+};
+
+const startMatchTimer = (matchId) => {
+  const id = Number(matchId);
+  if (!Number.isInteger(id) || matchTimers.has(id)) {
+    return false;
+  }
+
+  const endAt = Date.now() + MATCH_DURATION_MS;
+  emitMatchTimer(id, endAt - Date.now());
+
+  const intervalId = setInterval(() => {
+    const timeLeft = endAt - Date.now();
+    if (timeLeft <= 0) {
+      finishMatchByTimer(id);
+      return;
+    }
+    emitMatchTimer(id, timeLeft);
+  }, MATCH_TIMER_TICK_MS);
+
+  matchTimers.set(id, { intervalId, endAt });
+  return true;
 };
 
 const initSocket = (httpServer) => {
@@ -214,4 +287,6 @@ module.exports = {
   emitToUsers,
   joinUserSocketsToRoom,
   joinUsersToRoom,
+  startMatchTimer,
+  stopMatchTimer,
 };
