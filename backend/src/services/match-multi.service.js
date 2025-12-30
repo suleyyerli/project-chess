@@ -1,4 +1,5 @@
 const matchRepository = require("../repositories/match.repository");
+const userRepository = require("../repositories/user.repository");
 const puzzleService = require("./puzzle.service");
 
 const matchStates = new Map();
@@ -116,6 +117,17 @@ function computeWinner(state) {
   }
 
   return { winnerId: Number(winners[0]), isDraw: false };
+}
+
+function calculateTrophiesDelta({ puzzlesSolved, isWinner, isDraw }) {
+  if (isDraw) {
+    return 0;
+  }
+  if (!puzzlesSolved || puzzlesSolved <= 0) {
+    return 0;
+  }
+  const base = Math.ceil(puzzlesSolved / 5);
+  return isWinner ? base : -base;
 }
 
 async function loadMatch(matchId) {
@@ -312,6 +324,49 @@ async function finishMatch({ matchId, reason }) {
     finished_at: finishedAt,
     state: finalState,
   });
+
+  const playerStats = playerIds.map((playerId) => {
+    const playerState = state.players?.[playerId] || {};
+    const puzzlesSolved = Number.isFinite(playerState.score) ? playerState.score : 0;
+    const isWinner = !isDraw && playerId === winnerId;
+    return {
+      userId: playerId,
+      puzzlesSolved,
+      isWinner,
+      trophiesDelta: calculateTrophiesDelta({
+        puzzlesSolved,
+        isWinner,
+        isDraw,
+      }),
+    };
+  });
+
+  await Promise.all(
+    playerStats.map((entry) =>
+      matchRepository.updatePlayer(id, entry.userId, {
+        puzzles_solved: entry.puzzlesSolved,
+        is_winner: entry.isWinner,
+        trophies_delta: entry.trophiesDelta,
+      })
+    )
+  );
+
+  await Promise.all(
+    playerStats.map((entry) => {
+      const data = {
+        nbgame: { increment: 1 },
+        trophy: { increment: entry.trophiesDelta },
+      };
+      if (isDraw) {
+        data.nbdraw = { increment: 1 };
+      } else if (entry.isWinner) {
+        data.nbwin = { increment: 1 };
+      } else {
+        data.nblose = { increment: 1 };
+      }
+      return userRepository.update(entry.userId, data);
+    })
+  );
 
   matchStates.set(id, finalState);
 
