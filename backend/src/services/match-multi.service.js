@@ -127,15 +127,23 @@ function computeWinner(state) {
   return { winnerId: Number(winners[0]), isDraw: false };
 }
 
-function calculateTrophiesDelta({ puzzlesSolved, isWinner, isDraw }) {
-  if (isDraw) {
-    return 0;
+function calculateTrophiesDelta({ trophy, isWinner, isDraw }) {
+  if (isDraw) return 0;
+  const current = Number.isFinite(trophy) ? trophy : 0;
+
+  if (isWinner) {
+    if (current >= 1000) return 5;
+    return 8;
   }
-  if (!puzzlesSolved || puzzlesSolved <= 0) {
-    return 0;
-  }
-  const base = Math.ceil(puzzlesSolved / 5);
-  return isWinner ? base : -base;
+
+  if (current < 500) return 0;
+  return -8;
+}
+
+function getUserTrophy(match, userId) {
+  const entry = match.match_players?.find((player) => player.user_id === userId);
+  const trophy = entry?.users?.trophy;
+  return Number.isFinite(trophy) ? trophy : 0;
 }
 
 async function loadMatch(matchId) {
@@ -392,12 +400,13 @@ async function finishMatch({ matchId, reason, winnerId = null, isDraw = null }) 
     const playerState = state.players?.[playerId] || {};
     const puzzlesSolved = Number.isFinite(playerState.score) ? playerState.score : 0;
     const isWinner = !resolvedIsDraw && playerId === resolvedWinnerId;
+    const trophy = getUserTrophy(match, playerId);
     return {
       userId: playerId,
       puzzlesSolved,
       isWinner,
       trophiesDelta: calculateTrophiesDelta({
-        puzzlesSolved,
+        trophy,
         isWinner,
         isDraw: resolvedIsDraw,
       }),
