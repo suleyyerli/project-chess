@@ -440,7 +440,7 @@ async function finishMatch({ matchId, reason, winnerId = null, isDraw = null }) 
     })
   );
 
-  matchStates.set(id, finalState);
+  matchStates.delete(id);
 
   return {
     matchId: id,
