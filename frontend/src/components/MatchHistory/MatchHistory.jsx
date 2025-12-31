@@ -5,7 +5,10 @@ import { getMatchesByUser } from "../../api/apiMatches";
 
 const MATCH_HISTORY_LIMIT = 15;
 
-const formatResult = (isWinner) => (isWinner ? "Victoire" : "Défaite");
+const formatResult = (isWinner, isDraw) => {
+  if (isDraw) return "Nul";
+  return isWinner ? "Victoire" : "Défaite";
+};
 
 const formatMode = (mode) => {
   if (!mode) return "N/A";
@@ -79,6 +82,7 @@ const MatchHistory = ({ userId }) => {
         key: `${match.id}-${tracked.userId}`,
         pseudo: tracked.pseudo ?? `Joueur ${tracked.userId}`,
         isWinner: Boolean(tracked.isWinner),
+        isDraw: Boolean(match.isDraw),
         puzzlesSolved:
           typeof tracked.puzzlesSolved === "number" ? tracked.puzzlesSolved : 0,
         trophiesDelta:
@@ -129,7 +133,7 @@ const MatchHistory = ({ userId }) => {
               {rows.map((row) => (
                 <tr key={row.key}>
                   <td>{row.pseudo}</td>
-                  <td>{formatResult(row.isWinner)}</td>
+                  <td>{formatResult(row.isWinner, row.isDraw)}</td>
                   <td>{row.puzzlesSolved}</td>
                   <td className={styles.trophies}>
                     {formatTrophyDelta(row.trophiesDelta)}

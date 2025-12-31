@@ -85,10 +85,12 @@ function hasUser(match, userId) {
 }
 
 function toMatchHistory(match) {
+  const isDraw = Boolean(match?.state?.isDraw);
   return {
     id: match.id,
     finishedAt: match.finished_at ? match.finished_at.toISOString() : null,
     mode: match.mode,
+    isDraw,
     players: (match.match_players || []).map((player) => ({
       userId: player.user_id,
       pseudo: player.users?.pseudo ?? null,
