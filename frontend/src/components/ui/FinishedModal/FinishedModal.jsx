@@ -40,7 +40,8 @@ const FinishedModal = ({
                 {opponent.pseudo ?? "Adversaire"}
               </p>
               <p>
-                <span className={styles.label}>Score :</span> {opponent.score ?? 0}
+                <span className={styles.label}>Score :</span>{" "}
+                {opponent.score ?? 0}
               </p>
               <p>
                 <span className={styles.label}>Erreurs :</span>{" "}
@@ -50,14 +51,6 @@ const FinishedModal = ({
           )}
         </div>
         <div className={styles.actions}>
-          {onClose && (
-            <Button
-              label="Fermer"
-              onClick={onClose}
-              variant="red"
-              className={styles.actionButton}
-            />
-          )}
           <Button
             label="Rejouer"
             onClick={handleReplay}
