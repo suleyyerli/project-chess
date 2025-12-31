@@ -91,6 +91,14 @@ function normalizeResult(value) {
   return null;
 }
 
+function getOpponentId(players, actorId) {
+  if (!players || !actorId) return null;
+  const ids = Object.keys(players)
+    .map((id) => Number(id))
+    .filter((id) => Number.isInteger(id) && id !== actorId);
+  return ids.length > 0 ? ids[0] : null;
+}
+
 function computeWinner(state) {
   const entries = Object.entries(state.players || {});
   if (entries.length === 0) {
@@ -255,6 +263,29 @@ async function submitMatchAction({ matchId, userId, puzzleId, result }) {
     state.status = "running";
   }
 
+  if (!isCorrect && playerState.errors >= state.maxErrors) {
+    const opponentId = getOpponentId(state.players, actorId);
+    const finishedOutcome = await finishMatch({
+      matchId: id,
+      reason: "errors",
+      winnerId: opponentId,
+    });
+
+    return {
+      matchId: id,
+      state: finishedOutcome.state,
+      userId: actorId,
+      isCorrect,
+      score: playerState.score,
+      errors: playerState.errors,
+      nextPuzzleId: null,
+      finished: true,
+      winnerId: finishedOutcome.winnerId,
+      isDraw: finishedOutcome.isDraw,
+      reason: finishedOutcome.state?.finishedReason ?? "errors",
+    };
+  }
+
   let nextPuzzleId = state.puzzleIds[state.currentIndex] ?? null;
 
   if (isCorrect && nextPuzzleId === null) {
@@ -283,10 +314,26 @@ async function submitMatchAction({ matchId, userId, puzzleId, result }) {
     score: playerState.score,
     errors: playerState.errors,
     nextPuzzleId,
+    finished: false,
+    winnerId: null,
+    isDraw: false,
+    reason: null,
   };
 }
 
-async function finishMatch({ matchId, reason }) {
+function listActiveMatchesForUser(userId) {
+  const id = toInt(userId, "Utilisateur");
+  const matches = [];
+  for (const [matchId, state] of matchStates.entries()) {
+    if (!state || state.status === "finished") continue;
+    if (state.players?.[id]) {
+      matches.push({ matchId, state });
+    }
+  }
+  return matches;
+}
+
+async function finishMatch({ matchId, reason, winnerId = null, isDraw = null }) {
   const id = toInt(matchId, "Match");
   const match = await matchRepository.findByIdWithPlayers(id);
   if (!match) {
@@ -309,15 +356,31 @@ async function finishMatch({ matchId, reason }) {
     };
   }
 
-  const { winnerId, isDraw } = computeWinner(state);
+  let resolvedWinnerId = Number.isInteger(winnerId) ? winnerId : null;
+  let resolvedIsDraw = typeof isDraw === "boolean" ? isDraw : null;
+
+  if (resolvedIsDraw === true) {
+    resolvedWinnerId = null;
+  }
+
+  if (resolvedIsDraw === null && resolvedWinnerId === null) {
+    const computed = computeWinner(state);
+    resolvedWinnerId = computed.winnerId;
+    resolvedIsDraw = computed.isDraw;
+  }
+
+  if (resolvedIsDraw === null) {
+    resolvedIsDraw = false;
+  }
+
   const finishedAt = new Date();
   const finalState = {
     ...state,
     status: "finished",
     finishedReason: normalizeFinishReason(reason),
     finishedAt: finishedAt.toISOString(),
-    winnerId,
-    isDraw,
+    winnerId: resolvedWinnerId,
+    isDraw: resolvedIsDraw,
   };
 
   await matchRepository.updateMatch(id, {
@@ -328,7 +391,7 @@ async function finishMatch({ matchId, reason }) {
   const playerStats = playerIds.map((playerId) => {
     const playerState = state.players?.[playerId] || {};
     const puzzlesSolved = Number.isFinite(playerState.score) ? playerState.score : 0;
-    const isWinner = !isDraw && playerId === winnerId;
+    const isWinner = !resolvedIsDraw && playerId === resolvedWinnerId;
     return {
       userId: playerId,
       puzzlesSolved,
@@ -336,7 +399,7 @@ async function finishMatch({ matchId, reason }) {
       trophiesDelta: calculateTrophiesDelta({
         puzzlesSolved,
         isWinner,
-        isDraw,
+        isDraw: resolvedIsDraw,
       }),
     };
   });
@@ -357,7 +420,7 @@ async function finishMatch({ matchId, reason }) {
         nbgame: { increment: 1 },
         trophy: { increment: entry.trophiesDelta },
       };
-      if (isDraw) {
+      if (resolvedIsDraw) {
         data.nbdraw = { increment: 1 };
       } else if (entry.isWinner) {
         data.nbwin = { increment: 1 };
@@ -373,8 +436,8 @@ async function finishMatch({ matchId, reason }) {
   return {
     matchId: id,
     state: finalState,
-    winnerId,
-    isDraw,
+    winnerId: resolvedWinnerId,
+    isDraw: resolvedIsDraw,
   };
 }
 
@@ -395,6 +458,8 @@ module.exports = {
   finishMatch,
   getMatchRoom,
   getMatchState,
+  getOpponentId,
+  listActiveMatchesForUser,
   setMatchState,
   removeMatchState,
   submitMatchAction,

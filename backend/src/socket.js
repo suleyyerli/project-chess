@@ -37,6 +37,11 @@ const unregisterSocket = (userId, socketId) => {
   }
 };
 
+const hasActiveSockets = (userId) => {
+  const sockets = userSockets.get(userId);
+  return Boolean(sockets && sockets.size > 0);
+};
+
 const getUserSocketIds = (userId) => {
   const sockets = userSockets.get(userId);
   if (!sockets) {
@@ -239,13 +244,24 @@ const initSocket = (httpServer) => {
           state: outcome.state,
         });
 
-        if (outcome.isCorrect && outcome.nextPuzzleId) {
+        if (!outcome.finished && outcome.isCorrect && outcome.nextPuzzleId) {
           const puzzle = await puzzleService.getPuzzleById(outcome.nextPuzzleId);
           io.to(room).emit("match:puzzle", {
             matchId: outcome.matchId,
             puzzleId: outcome.nextPuzzleId,
             index: outcome.state.currentIndex,
             puzzle,
+          });
+        }
+
+        if (outcome.finished) {
+          stopMatchTimer(outcome.matchId);
+          io.to(room).emit("match:ended", {
+            matchId: outcome.matchId,
+            state: outcome.state,
+            winnerId: outcome.winnerId,
+            isDraw: outcome.isDraw,
+            reason: outcome.reason ?? outcome.state?.finishedReason ?? "ended",
           });
         }
 
@@ -259,11 +275,48 @@ const initSocket = (httpServer) => {
       }
     });
 
-    socket.on("disconnect", (reason) => {
+    socket.on("disconnect", async (reason) => {
       if (userId !== undefined) {
         unregisterSocket(userId, socket.id);
       }
       console.log(`Socket disconnected: ${socket.id} (user ${userId}) (${reason})`);
+
+      if (userId === undefined) {
+        return;
+      }
+
+      if (hasActiveSockets(userId)) {
+        return;
+      }
+
+      try {
+        const matches = matchMultiService.listActiveMatchesForUser(userId);
+        if (!matches.length) {
+          return;
+        }
+
+        await Promise.all(
+          matches.map(async ({ matchId, state }) => {
+            const opponentId = matchMultiService.getOpponentId(state?.players, userId);
+            const outcome = await matchMultiService.finishMatch({
+              matchId,
+              reason: "abandon",
+              winnerId: opponentId,
+            });
+            stopMatchTimer(matchId);
+            const room = matchMultiService.getMatchRoom(matchId);
+            io.to(room).emit("match:ended", {
+              matchId: outcome.matchId,
+              state: outcome.state,
+              winnerId: outcome.winnerId,
+              isDraw: outcome.isDraw,
+              reason: outcome.state?.finishedReason ?? "abandon",
+            });
+          })
+        );
+      } catch (error) {
+        console.warn("Impossible de clôturer le match après déconnexion", error);
+      }
     });
   });
 
