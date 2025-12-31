@@ -6,8 +6,11 @@ const puzzleService = require("./services/puzzle.service");
 let io;
 const userSockets = new Map();
 const matchTimers = new Map();
+const submitRate = new Map();
 const MATCH_DURATION_MS = Number(process.env.MATCH_DURATION_MS) || 120000;
 const MATCH_TIMER_TICK_MS = Number(process.env.MATCH_TIMER_TICK_MS) || 1000;
+const MATCH_SUBMIT_MIN_INTERVAL_MS =
+  Number(process.env.MATCH_SUBMIT_MIN_INTERVAL_MS) || 300;
 
 const getJwtSecret = () => {
   const secret = process.env.JWT_SECRET;
@@ -40,6 +43,26 @@ const unregisterSocket = (userId, socketId) => {
 const hasActiveSockets = (userId) => {
   const sockets = userSockets.get(userId);
   return Boolean(sockets && sockets.size > 0);
+};
+
+const canSubmitMatch = (userId) => {
+  const id = Number(userId);
+  if (!Number.isInteger(id)) {
+    return false;
+  }
+  const now = Date.now();
+  const last = submitRate.get(id) || 0;
+  if (now - last < MATCH_SUBMIT_MIN_INTERVAL_MS) {
+    return false;
+  }
+  submitRate.set(id, now);
+  return true;
+};
+
+const clearSubmitRate = (userId) => {
+  const id = Number(userId);
+  if (!Number.isInteger(id)) return;
+  submitRate.delete(id);
 };
 
 const getUserSocketIds = (userId) => {
@@ -211,6 +234,20 @@ const initSocket = (httpServer) => {
 
     socket.on("match:submit", async (payload, callback) => {
       try {
+        if (!Number.isInteger(userId)) {
+          if (typeof callback === "function") {
+            callback({ ok: false, message: "Unauthorized" });
+          }
+          return;
+        }
+
+        if (!canSubmitMatch(userId)) {
+          if (typeof callback === "function") {
+            callback({ ok: false, message: "Rate limit" });
+          }
+          return;
+        }
+
         const matchId = payload?.matchId ?? payload?.match_id;
         const puzzleId = payload?.puzzleId ?? payload?.puzzle_id;
         const result = payload?.result;
@@ -289,6 +326,8 @@ const initSocket = (httpServer) => {
         return;
       }
 
+      clearSubmitRate(userId);
+
       try {
         const matches = matchMultiService.listActiveMatchesForUser(userId);
         if (!matches.length) {
@@ -298,13 +337,18 @@ const initSocket = (httpServer) => {
         await Promise.all(
           matches.map(async ({ matchId, state }) => {
             const opponentId = matchMultiService.getOpponentId(state?.players, userId);
+            const room = matchMultiService.getMatchRoom(matchId);
+            io.to(room).emit("match:opponent_disconnected", {
+              matchId,
+              userId,
+              opponentId,
+            });
             const outcome = await matchMultiService.finishMatch({
               matchId,
               reason: "abandon",
               winnerId: opponentId,
             });
             stopMatchTimer(matchId);
-            const room = matchMultiService.getMatchRoom(matchId);
             io.to(room).emit("match:ended", {
               matchId: outcome.matchId,
               state: outcome.state,
