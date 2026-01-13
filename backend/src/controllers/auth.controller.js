@@ -73,10 +73,32 @@ async function logout(req, res) {
   return res.status(200).json({ message: "Déconnecté" });
 }
 
+async function requestPasswordReset(req, res) {
+  try {
+    const result = await authService.requestPasswordReset(req.body);
+    return res.json(result);
+  } catch (error) {
+    const message = error?.message || "Impossible d'envoyer le mail";
+    return res.status(400).json({ message });
+  }
+}
+
+async function resetPassword(req, res) {
+  try {
+    const result = await authService.resetPassword(req.body);
+    return res.json(result);
+  } catch (error) {
+    const message = error?.message || "Impossible de réinitialiser le mot de passe";
+    return res.status(400).json({ message });
+  }
+}
+
 module.exports = {
   signup,
   login,
   me,
   updateMe,
   logout,
+  requestPasswordReset,
+  resetPassword,
 };

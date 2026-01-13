@@ -42,6 +42,12 @@ async function findByPseudo(pseudo) {
   });
 }
 
+async function findByResetToken(token) {
+  return prisma.users.findFirst({
+    where: { reset_password_token: token },
+  });
+}
+
 async function create(data) {
   return prisma.users.create({
     data,
@@ -69,6 +75,7 @@ module.exports = {
   findById,
   findByEmail,
   findByPseudo,
+  findByResetToken,
   create,
   update,
   updateLastSeen,
