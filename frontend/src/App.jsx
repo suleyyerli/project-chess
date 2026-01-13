@@ -13,6 +13,8 @@ function App() {
   const location = useLocation();
   const token = getAuthToken();
   const isLoggedIn = Boolean(token);
+  const protectedElement = (element) =>
+    isLoggedIn ? element : <Navigate to="/" replace />;
 
   return (
     <>
@@ -23,10 +25,10 @@ function App() {
             element={isLoggedIn ? <Navigate to="/home" replace /> : <Landing />}
           />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/game" element={<Game />} />
-          <Route path="/classement" element={<Classement />} />
-          <Route path="/profil" element={<Profil />} />
+          <Route path="/home" element={protectedElement(<Home />)} />
+          <Route path="/game" element={protectedElement(<Game />)} />
+          <Route path="/classement" element={protectedElement(<Classement />)} />
+          <Route path="/profil" element={protectedElement(<Profil />)} />
         </Routes>
       </Layout>
     </>
