@@ -3,7 +3,7 @@ const userRepository = require("../repositories/user.repository");
 const puzzleService = require("./puzzle.service");
 
 const matchStates = new Map();
-const DEFAULT_PACK_SIZE = 20;
+const DEFAULT_PACK_SIZE = 40;
 const DEFAULT_START_ELO = 399;
 const DEFAULT_STEP_ELO = 30;
 const DEFAULT_MAX_ERRORS = 3;
@@ -49,7 +49,9 @@ function normalizeState(rawState, playerIds) {
       : {};
 
   state.status = typeof state.status === "string" ? state.status : "waiting";
-  state.currentIndex = Number.isFinite(state.currentIndex) ? state.currentIndex : 0;
+  state.currentIndex = Number.isFinite(state.currentIndex)
+    ? state.currentIndex
+    : 0;
   state.puzzleIds = Array.isArray(state.puzzleIds) ? state.puzzleIds : [];
   state.packSize = Number.isFinite(state.packSize)
     ? state.packSize
@@ -57,12 +59,15 @@ function normalizeState(rawState, playerIds) {
   state.startElo = Number.isFinite(state.startElo)
     ? state.startElo
     : DEFAULT_START_ELO;
-  state.stepElo = Number.isFinite(state.stepElo) ? state.stepElo : DEFAULT_STEP_ELO;
+  state.stepElo = Number.isFinite(state.stepElo)
+    ? state.stepElo
+    : DEFAULT_STEP_ELO;
   state.maxErrors = Number.isFinite(state.maxErrors)
     ? state.maxErrors
     : DEFAULT_MAX_ERRORS;
 
-  const players = state.players && typeof state.players === "object" ? state.players : {};
+  const players =
+    state.players && typeof state.players === "object" ? state.players : {};
   const normalizedPlayers = {};
 
   playerIds.forEach((playerId) => {
@@ -82,7 +87,9 @@ function normalizeResult(value) {
   if (value === 1 || value === 0) return Boolean(value);
   if (value === null || value === undefined) return null;
   const normalized = String(value).trim().toLowerCase();
-  if (["true", "1", "yes", "ok", "correct", "success", "win"].includes(normalized)) {
+  if (
+    ["true", "1", "yes", "ok", "correct", "success", "win"].includes(normalized)
+  ) {
     return true;
   }
   if (["false", "0", "no", "wrong", "fail", "lose"].includes(normalized)) {
@@ -141,7 +148,9 @@ function calculateTrophiesDelta({ trophy, isWinner, isDraw }) {
 }
 
 function getUserTrophy(match, userId) {
-  const entry = match.match_players?.find((player) => player.user_id === userId);
+  const entry = match.match_players?.find(
+    (player) => player.user_id === userId
+  );
   const trophy = entry?.users?.trophy;
   return Number.isFinite(trophy) ? trophy : 0;
 }
@@ -150,7 +159,11 @@ async function loadMatch(matchId) {
   const id = toInt(matchId, "Match");
   const cachedState = matchStates.get(id);
   if (cachedState) {
-    return { id, state: cachedState, playerIds: Object.keys(cachedState.players || {}) };
+    return {
+      id,
+      state: cachedState,
+      playerIds: Object.keys(cachedState.players || {}),
+    };
   }
 
   const match = await matchRepository.findByIdWithPlayers(id);
@@ -341,7 +354,12 @@ function listActiveMatchesForUser(userId) {
   return matches;
 }
 
-async function finishMatch({ matchId, reason, winnerId = null, isDraw = null }) {
+async function finishMatch({
+  matchId,
+  reason,
+  winnerId = null,
+  isDraw = null,
+}) {
   const id = toInt(matchId, "Match");
   const match = await matchRepository.findByIdWithPlayers(id);
   if (!match) {
@@ -398,7 +416,9 @@ async function finishMatch({ matchId, reason, winnerId = null, isDraw = null }) 
 
   const playerStats = playerIds.map((playerId) => {
     const playerState = state.players?.[playerId] || {};
-    const puzzlesSolved = Number.isFinite(playerState.score) ? playerState.score : 0;
+    const puzzlesSolved = Number.isFinite(playerState.score)
+      ? playerState.score
+      : 0;
     const isWinner = !resolvedIsDraw && playerId === resolvedWinnerId;
     const trophy = getUserTrophy(match, playerId);
     return {
