@@ -106,6 +106,8 @@ model users {
   is_banned                                 Boolean         @default(false)
   ban_reason                                String?
   last_seen                                 DateTime?       @db.Timestamptz(6)
+  reset_password_token                      String?
+  reset_password_expires                    DateTime?       @db.Timestamptz(6)
   challenges_challenges_from_user_idTousers challenges[]    @relation("challenges_from_user_idTousers")
   challenges_challenges_to_user_idTousers   challenges[]    @relation("challenges_to_user_idTousers")
   friends_friends_receiver_idTousers        friends[]       @relation("friends_receiver_idTousers")
@@ -117,6 +119,8 @@ model users {
   @@index([email], map: "idx_users_email")
   @@index([pseudo], map: "idx_users_pseudo")
   @@index([last_seen], map: "idx_users_last_seen")
+  @@index([reset_password_expires], map: "idx_users_reset_expires")
+  @@index([reset_password_token], map: "idx_users_reset_token")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
