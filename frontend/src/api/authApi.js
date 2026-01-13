@@ -76,3 +76,19 @@ export async function updateMe(payload, token = getAuthToken()) {
   return res.json();
 }
 
+export async function logout(token = getAuthToken()) {
+  if (!token) {
+    return null;
+  }
+
+  const res = await fetch(`${API_BASE}/auth/logout`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    throw new Error(await readErrorMessage(res));
+  }
+
+  return res.json();
+}
