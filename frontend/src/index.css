@@ -12,6 +12,12 @@ body {
   color: #fff;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* layout */
 .container {
   max-width: var(--page-max-width);

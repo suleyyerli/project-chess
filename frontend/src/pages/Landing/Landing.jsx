@@ -16,7 +16,7 @@ const Landing = () => {
           Veuillez vous inscrire ou vous connecter pour accéder au contenu.
         </p>
       </section>
-      <section>
+      <section className={styles.formSection}>
         <Form />
       </section>
     </main>

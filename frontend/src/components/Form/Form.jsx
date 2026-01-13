@@ -128,6 +128,12 @@ const Form = () => {
       </div>
 
       <h2 className={styles.title}>{title}</h2>
+      {isRegister && (
+        <p className={styles.notice}>
+          Attention : si vous ne mettez pas d'adresse mail valide, le reset du
+          mot de passe ne sera pas possible.
+        </p>
+      )}
 
       <form className={styles.form} onSubmit={handleSubmit}>
         {isRegister && !isReset && (
