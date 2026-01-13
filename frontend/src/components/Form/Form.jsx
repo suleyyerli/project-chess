@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Card from "../ui/Card/Card";
 import Button from "../ui/Button/Button";
 import styles from "./Form.module.css";
-import { login, signup } from "../../api/authApi";
+import { login, requestPasswordReset, signup } from "../../api/authApi";
 import { setAuthToken } from "../../api/authStorage";
 
 const initialData = {
@@ -14,7 +14,7 @@ const initialData = {
 };
 
 const Form = () => {
-  const [mode, setMode] = useState("register"); // 'register' | 'login'
+  const [mode, setMode] = useState("register"); // 'register' | 'login' | 'reset'
   const [formData, setFormData] = useState(initialData);
   const [error, setError] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -22,11 +22,12 @@ const Form = () => {
   const navigate = useNavigate();
 
   const isRegister = mode === "register";
+  const isReset = mode === "reset";
 
-  const title = useMemo(
-    () => (isRegister ? "Créer un compte" : "Se connecter"),
-    [isRegister]
-  );
+  const title = useMemo(() => {
+    if (isReset) return "Mot de passe oublié";
+    return isRegister ? "Créer un compte" : "Se connecter";
+  }, [isRegister, isReset]);
 
   const handleModeChange = (nextMode) => {
     if (nextMode === mode) return;
@@ -51,19 +52,30 @@ const Form = () => {
       return;
     }
 
-    if (!formData.email.trim() || !formData.password.trim()) {
+    if (!formData.email.trim()) {
+      setError("Email obligatoire.");
+      return;
+    }
+
+    if (!isReset && !formData.password.trim()) {
       setError("Email et mot de passe sont obligatoires.");
       return;
     }
 
-    if (isRegister && formData.password !== formData.confirmPassword) {
+    if (!isReset && isRegister && formData.password !== formData.confirmPassword) {
       setError("Les mots de passe ne correspondent pas.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      if (isRegister) {
+      if (isReset) {
+        await requestPasswordReset(formData.email);
+        setFeedback(
+          "Si un compte existe, un email a été envoyé avec la suite."
+        );
+        setFormData({ ...initialData, email: formData.email });
+      } else if (isRegister) {
         await signup({
           email: formData.email,
           pseudo: formData.pseudo,
@@ -118,7 +130,7 @@ const Form = () => {
       <h2 className={styles.title}>{title}</h2>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        {isRegister && (
+        {isRegister && !isReset && (
           <label className={styles.field}>
             <span className={styles.labelText}>Pseudo</span>
             <input
@@ -146,20 +158,22 @@ const Form = () => {
           />
         </label>
 
-        <label className={styles.field}>
-          <span className={styles.labelText}>Mot de passe</span>
-          <input
-            className={styles.input}
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            autoComplete={isRegister ? "new-password" : "current-password"}
-            placeholder="********"
-          />
-        </label>
+        {!isReset && (
+          <label className={styles.field}>
+            <span className={styles.labelText}>Mot de passe</span>
+            <input
+              className={styles.input}
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              autoComplete={isRegister ? "new-password" : "current-password"}
+              placeholder="********"
+            />
+          </label>
+        )}
 
-        {isRegister && (
+        {isRegister && !isReset && (
           <label className={styles.field}>
             <span className={styles.labelText}>Confirmer le mot de passe</span>
             <input
@@ -182,6 +196,8 @@ const Form = () => {
           label={
             isSubmitting
               ? "En cours..."
+              : isReset
+              ? "Envoyer le lien"
               : isRegister
               ? "Je m'inscris"
               : "Je me connecte"
@@ -189,6 +205,26 @@ const Form = () => {
           className={styles.submit}
           disabled={isSubmitting}
         />
+
+        {!isRegister && !isReset && (
+          <button
+            type="button"
+            className={styles.resetLink}
+            onClick={() => handleModeChange("reset")}
+          >
+            Mot de passe oublié ?
+          </button>
+        )}
+
+        {isReset && (
+          <button
+            type="button"
+            className={styles.resetLink}
+            onClick={() => handleModeChange("login")}
+          >
+            Retour à la connexion
+          </button>
+        )}
       </form>
     </Card>
   );

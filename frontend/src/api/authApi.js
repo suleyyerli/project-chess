@@ -92,3 +92,39 @@ export async function logout(token = getAuthToken()) {
 
   return res.json();
 }
+
+export async function requestPasswordReset(email) {
+  if (!email) {
+    throw new Error("Email requis");
+  }
+
+  const res = await fetch(`${API_BASE}/auth/password/forgot`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!res.ok) {
+    throw new Error(await readErrorMessage(res));
+  }
+
+  return res.json();
+}
+
+export async function resetPassword({ token, password }) {
+  if (!token || !password) {
+    throw new Error("Token et mot de passe requis");
+  }
+
+  const res = await fetch(`${API_BASE}/auth/password/reset`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, password }),
+  });
+
+  if (!res.ok) {
+    throw new Error(await readErrorMessage(res));
+  }
+
+  return res.json();
+}
