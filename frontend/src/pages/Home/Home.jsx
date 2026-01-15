@@ -91,12 +91,32 @@ const Home = () => {
 
         <div className={styles.puzzleColumn}>
           <Card className={styles.puzzleCard} variant="gray">
-            <h3>Puzzle à venir</h3>
-            <p>
-              Un aperçu interactif arrivera ici avec le prochain défi quotidien.
-              Continue de t&apos;entraîner pour rester dans le top ! SI LE TEMPS
-              DE LE DEV
-            </p>
+            <h3>Mes statistiques</h3>
+            {loadingUser && (
+              <p className={styles.statsText}>Chargement des stats...</p>
+            )}
+            {userError && !loadingUser && (
+              <p className={styles.statusError}>{userError}</p>
+            )}
+            {user && (
+              <div className={styles.statsList}>
+                <p className={styles.statsText}>
+                  Parties jouées : {user.stats?.nbGame ?? 0}
+                </p>
+                <p className={styles.statsText}>
+                  Victoires : {user.stats?.nbWin ?? 0}
+                </p>
+                <p className={styles.statsText}>
+                  Défaites : {user.stats?.nbLose ?? 0}
+                </p>
+                <p className={styles.statsText}>
+                  Matchs nuls : {user.stats?.nbDraw ?? 0}
+                </p>
+                <p className={styles.statsText}>
+                  Trophées : {user.stats?.trophy ?? 0}
+                </p>
+              </div>
+            )}
           </Card>
         </div>
       </section>

@@ -253,10 +253,10 @@ const Game = () => {
       ? result === "win"
         ? "Victoire !"
         : result === "lose"
-          ? "Défaite"
-          : result === "draw"
-            ? "Match nul"
-            : "Match terminé"
+        ? "Défaite"
+        : result === "draw"
+        ? "Match nul"
+        : "Match terminé"
       : "Bien joué !";
 
   return (
