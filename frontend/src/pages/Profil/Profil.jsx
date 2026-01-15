@@ -19,6 +19,19 @@ const formatDate = (isoString) => {
   });
 };
 
+const formatDateTime = (isoString) => {
+  if (!isoString) return null;
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleString("fr-FR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 const Profil = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,6 +83,7 @@ const Profil = () => {
   }`;
 
   const statusLabel = "Statut : connecté";
+  const banInfo = user.ban;
 
   return (
     <div className={styles.page}>
@@ -96,6 +110,21 @@ const Profil = () => {
         nblose={user.stats?.nbLose}
         nbdraw={user.stats?.nbDraw}
       />
+
+      {banInfo?.isBanned && (
+        <div className={styles.banCard}>
+          <p className={styles.banTitle}>Bannissement actif</p>
+          <p className={styles.banText}>
+            Raison : {banInfo.label ?? "Non précisée"}
+          </p>
+          <p className={styles.banText}>
+            Fin :{" "}
+            {banInfo.bannedUntil
+              ? formatDateTime(banInfo.bannedUntil)
+              : "Définitif"}
+          </p>
+        </div>
+      )}
 
       <UserSkin
         className={styles.userSkin}
