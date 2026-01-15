@@ -8,7 +8,7 @@ import {
   submitMatchResult,
 } from "../api/apiMatches";
 
-const DEFAULT_TIME_LEFT = 2000;
+const DEFAULT_TIME_LEFT = 120;
 const DEFAULT_MULTI_TIME_LEFT = 120;
 
 function buildStateUpdate(serverState) {

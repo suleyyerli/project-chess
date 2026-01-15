@@ -43,7 +43,9 @@ const UserSkin = ({
   const avatarSrc = toImageSrc(avatar);
   const emblemSrc =
     toImageSrc(emblem) ||
-    (typeof emblem === "string" ? toImageSrc(getEmblemById(emblem).image) : null);
+    (typeof emblem === "string"
+      ? toImageSrc(getEmblemById(emblem).image)
+      : null);
 
   const classes = [
     styles.skin,
@@ -89,7 +91,7 @@ const UserSkin = ({
             loading="lazy"
           />
         ) : (
-          <span className={styles.emblemPlaceholder}>Emblème</span>
+          <span className={styles.emblemPlaceholder}></span>
         )}
       </div>
     </article>
