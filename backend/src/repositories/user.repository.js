@@ -1,7 +1,7 @@
 const prisma = require("../lib/prisma");
 
-async function findAll() {
-  return prisma.users.findMany();
+async function findAll(options = {}) {
+  return prisma.users.findMany(options);
 }
 
 async function findLeaderboard() {
@@ -68,6 +68,12 @@ async function updateLastSeen(id, lastSeen) {
   });
 }
 
+async function deleteById(id) {
+  return prisma.users.delete({
+    where: { id },
+  });
+}
+
 module.exports = {
   findAll,
   findLeaderboard,
@@ -79,4 +85,5 @@ module.exports = {
   create,
   update,
   updateLastSeen,
+  deleteById,
 };
