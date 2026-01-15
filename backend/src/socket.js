@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
 const matchMultiService = require("./services/match-multi.service");
 const puzzleService = require("./services/puzzle.service");
+const userService = require("./services/user.service");
 
 let io;
 const userSockets = new Map();
@@ -201,7 +202,7 @@ const initSocket = (httpServer) => {
     },
   });
 
-  io.use((socket, next) => {
+  io.use(async (socket, next) => {
     const token = socket.handshake?.auth?.token;
     if (!token) {
       return next(new Error("Unauthorized"));
@@ -212,6 +213,11 @@ const initSocket = (httpServer) => {
       const userId = Number(payload?.sub);
       if (!Number.isInteger(userId)) {
         return next(new Error("Unauthorized"));
+      }
+      const user = await userService.getUserById(userId);
+      const ban = userService.resolveBanInfo(user);
+      if (ban.isBanned) {
+        return next(new Error("Banni"));
       }
       socket.data.userId = userId;
       return next();
@@ -240,6 +246,8 @@ const initSocket = (httpServer) => {
           }
           return;
         }
+
+        await userService.ensureUserNotBanned(userId);
 
         if (!canSubmitMatch(userId)) {
           if (typeof callback === "function") {

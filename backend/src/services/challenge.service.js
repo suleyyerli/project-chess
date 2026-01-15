@@ -48,7 +48,12 @@ async function createChallenge(fromUserId, payload) {
     throw new Error("Impossible de se défier soi-même");
   }
 
-  await userService.getUserById(toId);
+  await userService.ensureUserNotBanned(fromId);
+  const targetUser = await userService.getUserById(toId);
+  const targetBan = userService.resolveBanInfo(targetUser);
+  if (targetBan.isBanned) {
+    throw new Error("Adversaire indisponible");
+  }
 
   const challenge = await challengeRepository.createChallenge({
     fromUserId: fromId,
@@ -79,6 +84,15 @@ async function updateChallengeStatus(challengeId, userId, status) {
 
   if (challenge.status !== "PENDING") {
     throw new Error("Défi déjà traité");
+  }
+
+  if (status === "ACCEPTED") {
+    await userService.ensureUserNotBanned(actorId);
+    const challenger = await userService.getUserById(challenge.from_user_id);
+    const challengerBan = userService.resolveBanInfo(challenger);
+    if (challengerBan.isBanned) {
+      throw new Error("Adversaire indisponible");
+    }
   }
 
   const updated = await challengeRepository.updateStatus(id, status);

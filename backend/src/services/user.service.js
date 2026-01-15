@@ -22,7 +22,55 @@ async function getUsers() {
 function toPublicUser(user) {
   if (!user) return user;
   const { password, ...rest } = user;
-  return presentUser(rest);
+  return {
+    ...presentUser(rest),
+    ban: resolveBanInfo(rest),
+  };
+}
+
+function resolveBanInfo(user) {
+  if (!user) {
+    return { isBanned: false, label: null, bannedUntil: null };
+  }
+
+  const rawUntil = user.banned_until;
+  const until =
+    rawUntil instanceof Date
+      ? rawUntil
+      : rawUntil
+        ? new Date(rawUntil)
+        : null;
+  const hasUntil = Boolean(until && !Number.isNaN(until.getTime()));
+  const expired = hasUntil ? until.getTime() <= Date.now() : false;
+  const isBanned = Boolean(user.is_banned) && (!hasUntil || !expired);
+
+  return {
+    isBanned,
+    label: user.ban_label ?? null,
+    bannedUntil: isBanned && hasUntil ? until.toISOString() : null,
+  };
+}
+
+async function ensureUserNotBanned(userId) {
+  const user = await getUserById(userId);
+  const ban = resolveBanInfo(user);
+
+  if (!ban.isBanned && user.is_banned && user.banned_until) {
+    const until = new Date(user.banned_until);
+    if (!Number.isNaN(until.getTime()) && until.getTime() <= Date.now()) {
+      await userRepository.update(user.id, {
+        is_banned: false,
+        ban_label: null,
+        banned_until: null,
+      });
+    }
+  }
+
+  if (ban.isBanned) {
+    throw new Error("Utilisateur banni");
+  }
+
+  return ban;
 }
 
 async function getUserById(id) {
@@ -219,6 +267,8 @@ module.exports = {
   updateUser,
   updateProfile,
   toPublicUser,
+  resolveBanInfo,
+  ensureUserNotBanned,
   getLeaderboardUsers,
   getActiveUsers,
   touchLastSeen,

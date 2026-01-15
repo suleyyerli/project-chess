@@ -12,6 +12,7 @@ const {
 function mapErrorToStatus(message) {
   if (message.includes("introuvable") || message.includes("non trouvé")) return 404;
   if (message.includes("Accès interdit")) return 403;
+  if (message.includes("banni") || message.includes("indisponible")) return 403;
   if (message.includes("déjà traité")) return 409;
   if (message.includes("invalide") || message.includes("Impossible")) return 400;
   return 400;
