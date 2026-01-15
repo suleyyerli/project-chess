@@ -108,6 +108,8 @@ model users {
   last_seen                                 DateTime?       @db.Timestamptz(6)
   reset_password_token                      String?
   reset_password_expires                    DateTime?       @db.Timestamptz(6)
+  ban_label                                 String?
+  banned_until                              DateTime?       @db.Timestamptz(6)
   challenges_challenges_from_user_idTousers challenges[]    @relation("challenges_from_user_idTousers")
   challenges_challenges_to_user_idTousers   challenges[]    @relation("challenges_to_user_idTousers")
   friends_friends_receiver_idTousers        friends[]       @relation("friends_receiver_idTousers")
@@ -121,6 +123,8 @@ model users {
   @@index([last_seen], map: "idx_users_last_seen")
   @@index([reset_password_expires], map: "idx_users_reset_expires")
   @@index([reset_password_token], map: "idx_users_reset_token")
+  @@index([ban_label], map: "idx_users_ban_label")
+  @@index([banned_until], map: "idx_users_banned_until")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
