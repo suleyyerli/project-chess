@@ -6,15 +6,20 @@ import Profil from "./pages/Profil/Profil";
 import Classement from "./pages/Classement/Classement";
 import Landing from "./pages/Landing/Landing";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import Admin from "./pages/Admin/Admin";
 import Layout from "./components/Layout/Layout";
 import { getAuthToken } from "./api/authStorage";
+import { getUserRoleFromToken } from "./utils/jwt";
 
 function App() {
   const location = useLocation();
   const token = getAuthToken();
   const isLoggedIn = Boolean(token);
+  const role = getUserRoleFromToken(token);
   const protectedElement = (element) =>
     isLoggedIn ? element : <Navigate to="/" replace />;
+  const adminElement = (element) =>
+    isLoggedIn && role === "admin" ? element : <Navigate to="/home" replace />;
 
   return (
     <>
@@ -29,6 +34,7 @@ function App() {
           <Route path="/game" element={protectedElement(<Game />)} />
           <Route path="/classement" element={protectedElement(<Classement />)} />
           <Route path="/profil" element={protectedElement(<Profil />)} />
+          <Route path="/admin" element={adminElement(<Admin />)} />
         </Routes>
       </Layout>
     </>

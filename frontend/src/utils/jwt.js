@@ -18,3 +18,17 @@ export function getUserIdFromToken(token) {
     return null;
   }
 }
+
+export function getUserRoleFromToken(token) {
+  if (!token || typeof token !== "string") return null;
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+
+  try {
+    const decoded = decodeBase64Url(parts[1]);
+    const payload = JSON.parse(decoded);
+    return payload?.role ?? null;
+  } catch {
+    return null;
+  }
+}

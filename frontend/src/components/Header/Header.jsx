@@ -7,16 +7,19 @@ import profilIcon from "../../assets/iconheader/profil.png";
 import logo from "../../assets/iconheader/logo_chess.png";
 import gameIcon from "../../assets/battle.png";
 import landingIcon from "../../assets/iconheader/land.png";
+import adminIcon from "../../assets/iconheader/shieldbattle.png";
 import Button from "../ui/Button/Button";
 import { clearAuthToken, getAuthToken } from "../../api/authStorage";
 import { getMe, logout } from "../../api/authApi";
 import { toImageSrc } from "../../utils/image";
+import { getUserRoleFromToken } from "../../utils/jwt";
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [authToken, setAuthTokenState] = useState(getAuthToken());
   const [user, setUser] = useState(null);
+  const role = getUserRoleFromToken(authToken);
 
   useEffect(() => {
     setAuthTokenState(getAuthToken());
@@ -117,6 +120,18 @@ const Header = () => {
           <img src={profilIcon} alt="Profil" className={styles.icon} />
           <span className={styles.navLabel}>Profil</span>
         </NavLink>
+
+        {role === "admin" && (
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              `${styles.navItem} ${isActive ? styles.active : ""}`
+            }
+          >
+            <img src={adminIcon} alt="Admin" className={styles.icon} />
+            <span className={styles.navLabel}>Admin</span>
+          </NavLink>
+        )}
       </nav>
 
       {/* Titre + logo + user */}
