@@ -67,7 +67,7 @@ async function ensureUserNotBanned(userId) {
   }
 
   if (ban.isBanned) {
-    throw new Error("Utilisateur banni");
+    throw new Error("Vous êtes banni, impossible de lancer une partie");
   }
 
   return ban;
