@@ -100,7 +100,7 @@ const Admin = () => {
     <div className={styles.page}>
       <header className={styles.header}>
         <h2>Panel admin</h2>
-        <p>Gestion simple des signalements et bannissements.</p>
+        <p>Gestion des utilisateurs.</p>
       </header>
 
       <section className={styles.filters}>

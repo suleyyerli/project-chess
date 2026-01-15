@@ -14,12 +14,26 @@ import { getMe, logout } from "../../api/authApi";
 import { toImageSrc } from "../../utils/image";
 import { getUserRoleFromToken } from "../../utils/jwt";
 
+const formatDateTime = (isoString) => {
+  if (!isoString) return null;
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleString("fr-FR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [authToken, setAuthTokenState] = useState(getAuthToken());
   const [user, setUser] = useState(null);
   const role = getUserRoleFromToken(authToken);
+  const banInfo = user?.ban;
 
   useEffect(() => {
     setAuthTokenState(getAuthToken());
@@ -143,6 +157,19 @@ const Header = () => {
 
         {isLoggedIn && (
           <div className={styles.userArea}>
+            {banInfo?.isBanned && (
+              <div className={styles.banBadge}>
+                <span className={styles.banTitle}>BANNI</span>
+                <span className={styles.banLabel}>
+                  {banInfo.label ?? "Motif inconnu"}
+                </span>
+                <span className={styles.banUntil}>
+                  {banInfo.bannedUntil
+                    ? formatDateTime(banInfo.bannedUntil)
+                    : "Définitif"}
+                </span>
+              </div>
+            )}
             <div className={styles.avatar}>
               {avatarSrc ? (
                 <img

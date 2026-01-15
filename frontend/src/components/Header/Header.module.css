@@ -82,6 +82,30 @@
   gap: 0.6rem;
 }
 
+.banBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  background: rgba(140, 25, 25, 0.35);
+  border: 1px solid rgba(255, 120, 120, 0.35);
+}
+
+.banTitle {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #ffd1d1;
+}
+
+.banLabel,
+.banUntil {
+  font-size: 0.6rem;
+  color: #f3d2d2;
+}
+
 .avatar {
   width: 34px;
   height: 34px;

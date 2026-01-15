@@ -60,19 +60,31 @@
   color: #e2d7c4;
 }
 
-.reportActions {
+.reportBadges {
   display: flex;
-  gap: 0.6rem;
-  align-items: center;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
-.reportSelect {
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.35);
-  color: #f4f4f4;
-  padding: 0.4rem 0.6rem;
+.reportBadge {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.3);
+  color: #f0f0f0;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.reportBadge:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.reportBadgeActive {
+  background: rgba(180, 40, 40, 0.45);
+  border-color: rgba(255, 140, 140, 0.6);
+  color: #ffe2e2;
 }
 
 .reportButton {

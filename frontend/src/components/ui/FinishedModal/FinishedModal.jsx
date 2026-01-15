@@ -76,27 +76,28 @@ const FinishedModal = ({
           {opponent?.id && (
             <div className={styles.reportBlock}>
               <p className={styles.reportTitle}>Signaler l'adversaire</p>
-              <div className={styles.reportActions}>
-                <select
-                  className={styles.reportSelect}
-                  value={reportLabel}
-                  onChange={(event) => setReportLabel(event.target.value)}
-                  disabled={reporting || reportSent}
-                >
-                  {REPORT_LABELS.map((label) => (
-                    <option key={label} value={label}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-                <Button
-                  label={reportSent ? "Signalé" : "Signaler"}
-                  onClick={handleReport}
-                  disabled={reporting || reportSent}
-                  variant="red"
-                  className={styles.reportButton}
-                />
+              <div className={styles.reportBadges}>
+                {REPORT_LABELS.map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    className={`${styles.reportBadge} ${
+                      reportLabel === label ? styles.reportBadgeActive : ""
+                    }`}
+                    onClick={() => setReportLabel(label)}
+                    disabled={reporting || reportSent}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
+              <Button
+                label={reportSent ? "Signalé" : "Signaler"}
+                onClick={handleReport}
+                disabled={reporting || reportSent}
+                variant="red"
+                className={styles.reportButton}
+              />
               {reportMessage && (
                 <p className={styles.reportMessage}>{reportMessage}</p>
               )}
