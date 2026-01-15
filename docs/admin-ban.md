@@ -14,6 +14,23 @@ ALTER TABLE users ADD COLUMN banned_until TIMESTAMPTZ;
 
 CREATE INDEX IF NOT EXISTS idx_users_ban_label ON users(ban_label);
 CREATE INDEX IF NOT EXISTS idx_users_banned_until ON users(banned_until);
+
+CREATE TABLE IF NOT EXISTS reports (
+  id SERIAL PRIMARY KEY,
+  reporter_id INTEGER NOT NULL,
+  reported_id INTEGER NOT NULL,
+  reason TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT fk_reports_reporter
+    FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_reports_reported
+    FOREIGN KEY (reported_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_reports_reported_id ON reports(reported_id);
+CREATE INDEX IF NOT EXISTS idx_reports_reporter_id ON reports(reporter_id);
+CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);
 ```
 
 Puis :
@@ -80,7 +97,7 @@ Body :
 ```
 
 Durées supportées :
-- `1h`
+- `1d`
 - `1w`
 - `1m`
 - `permanent`
@@ -111,3 +128,41 @@ DELETE /admin/users/:id
 - `backend/src/services/report.service.js`
 - `backend/src/repositories/report.repository.js`
 - `backend/src/repositories/user.repository.js`
+- `frontend/src/api/apiReports.js`
+- `frontend/src/pages/Admin/Admin.jsx`
+- `frontend/src/components/ui/FinishedModal/FinishedModal.jsx`
+- `frontend/src/pages/Profil/Profil.jsx`
+
+---
+
+## 7) Front — signaler un adversaire (fin de match)
+
+Le bouton de signalement est affiché dans la modale de fin de match multijoueur.
+Il envoie un `POST /reports` avec un label (`Triche` ou `Anti‑jeu`).
+
+Extrait (simplifié) :
+```js
+await createReport({ reportedId: opponent.id, label: reportLabel });
+```
+
+---
+
+## 8) Front — panel admin
+
+Route admin : `/admin` (visible uniquement si `role === "admin"`).
+
+Le panel permet :
+- rechercher un joueur (pseudo / email)
+- filtrer par statut (actif / banni)
+- filtrer par nombre de signalements
+- bannir (label + durée)
+- débannir
+- supprimer un compte
+
+---
+
+## 9) Profil — affichage du bannissement
+
+Le profil affiche un encart si le joueur est banni, avec :
+- le label (`Triche` / `Anti‑jeu`)
+- la fin de ban (ou “Définitif”)

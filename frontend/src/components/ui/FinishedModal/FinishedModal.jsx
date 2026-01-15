@@ -1,5 +1,9 @@
+import { useState } from "react";
 import Button from "../Button/Button";
+import { createReport } from "../../../api/apiReports";
 import styles from "./FinishedModal.module.css";
+
+const REPORT_LABELS = ["Triche", "Anti-jeu"];
 
 const FinishedModal = ({
   score,
@@ -10,6 +14,11 @@ const FinishedModal = ({
   title = "Partie terminé",
   text = "Bien joué !",
 }) => {
+  const [reportLabel, setReportLabel] = useState(REPORT_LABELS[0]);
+  const [reporting, setReporting] = useState(false);
+  const [reportMessage, setReportMessage] = useState("");
+  const [reportSent, setReportSent] = useState(false);
+
   const handleReplay = () => {
     if (onReplay) {
       onReplay();
@@ -17,6 +26,21 @@ const FinishedModal = ({
     }
     if (typeof window !== "undefined") {
       window.location.reload();
+    }
+  };
+
+  const handleReport = async () => {
+    if (!opponent?.id) return;
+    setReporting(true);
+    setReportMessage("");
+    try {
+      await createReport({ reportedId: opponent.id, label: reportLabel });
+      setReportSent(true);
+      setReportMessage("Signalement envoyé. Merci.");
+    } catch (err) {
+      setReportMessage(err?.message || "Impossible d'envoyer le signalement");
+    } finally {
+      setReporting(false);
     }
   };
 
@@ -47,6 +71,35 @@ const FinishedModal = ({
                 <span className={styles.label}>Erreurs :</span>{" "}
                 {opponent.errors ?? 0}
               </p>
+            </div>
+          )}
+          {opponent?.id && (
+            <div className={styles.reportBlock}>
+              <p className={styles.reportTitle}>Signaler l'adversaire</p>
+              <div className={styles.reportActions}>
+                <select
+                  className={styles.reportSelect}
+                  value={reportLabel}
+                  onChange={(event) => setReportLabel(event.target.value)}
+                  disabled={reporting || reportSent}
+                >
+                  {REPORT_LABELS.map((label) => (
+                    <option key={label} value={label}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  label={reportSent ? "Signalé" : "Signaler"}
+                  onClick={handleReport}
+                  disabled={reporting || reportSent}
+                  variant="red"
+                  className={styles.reportButton}
+                />
+              </div>
+              {reportMessage && (
+                <p className={styles.reportMessage}>{reportMessage}</p>
+              )}
             </div>
           )}
         </div>

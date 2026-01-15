@@ -46,6 +46,45 @@
   color: #e2d7c4;
 }
 
+.reportBlock {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.reportTitle {
+  margin: 0;
+  font-weight: 600;
+  color: #e2d7c4;
+}
+
+.reportActions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.reportSelect {
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  color: #f4f4f4;
+  padding: 0.4rem 0.6rem;
+}
+
+.reportButton {
+  min-width: 110px;
+}
+
+.reportMessage {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #cfd6ff;
+}
+
 .label {
   font-weight: 600;
   color: #b1b1b1;

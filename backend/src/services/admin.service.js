@@ -3,7 +3,7 @@ const reportRepository = require("../repositories/report.repository");
 
 const BAN_LABELS = ["Triche", "Anti-jeu"];
 const BAN_DURATIONS = {
-  "1h": 60 * 60 * 1000,
+  "1d": 24 * 60 * 60 * 1000,
   "1w": 7 * 24 * 60 * 60 * 1000,
   "1m": 30 * 24 * 60 * 60 * 1000,
   permanent: null,
@@ -94,7 +94,6 @@ async function banUser({ userId, label, duration }) {
   const user = await userRepository.update(id, {
     is_banned: true,
     ban_label: normalizedLabel,
-    ban_reason: normalizedLabel,
     banned_until: bannedUntil,
   });
 
@@ -114,7 +113,6 @@ async function unbanUser(userId) {
   const user = await userRepository.update(id, {
     is_banned: false,
     ban_label: null,
-    ban_reason: null,
     banned_until: null,
   });
 
