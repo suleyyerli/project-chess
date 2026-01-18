@@ -15,6 +15,8 @@ La base de données de **ChessBattle** gère :
 - les défis\
 - les signalements\
 - l'historique des matchs\
+- la modération (bans, signalements)\
+- la réinitialisation de mot de passe\
 
 Les détails complets sont visibles dans le code et le diagramme
 ci-dessous.
@@ -34,7 +36,7 @@ flowchart TD
     email
     password
     pseudo
-    avatar
+    avatar (BYTEA)
     banner
     emblem
     trophy
@@ -43,12 +45,17 @@ flowchart TD
     nblose
     nbdraw
     bio
-    joinedAt
+    joined_at
     role
-    isactive
+    is_active
     nbreport
-    isbanned
-    banreason
+    is_banned
+    ban_reason
+    last_seen
+    reset_password_token
+    reset_password_expires
+    ban_label
+    banned_until
     "]
 
 
@@ -58,8 +65,7 @@ flowchart TD
     fen
     solution (JSONB)
     elo
-    theme
-    createdAt
+    themes (TEXT[])
     "]
 
 
@@ -67,7 +73,8 @@ flowchart TD
     -----------------------
     id PK
     mode
-    finishedAt
+    finished_at
+    state (JSONB)
     "]
 
 
@@ -76,9 +83,9 @@ flowchart TD
     id PK
     match_id FK
     user_id FK
-    isWinner
-    puzzlesSolved
-    trophiesDelta
+    is_winner
+    puzzles_solved
+    trophies_delta
     "]
 
 
@@ -88,7 +95,7 @@ flowchart TD
     requester_id FK
     receiver_id FK
     status
-    createdAt
+    created_at
     "]
 
 
@@ -98,7 +105,7 @@ flowchart TD
     from_user_id FK
     to_user_id FK
     status
-    createdAt
+    created_at
     "]
 
 
@@ -108,7 +115,7 @@ flowchart TD
     reporter_id FK
     reported_id FK
     reason
-    createdAt
+    created_at
     status
     "]
 
@@ -149,6 +156,9 @@ La base de données de **ChessBattle** est conçue pour gérer :
 - l’historique des parties
 - les puzzles d’échecs avec difficulté croissante
 - les statistiques des joueurs
+- la présence (dernier passage)
+- la modération (bans temporaires/permanents)
+- la réinitialisation du mot de passe
 
 Le schéma est organisé en **7 tables principales** :  
 `USERS`, `PUZZLES`, `MATCHES`, `MATCH_PLAYERS`, `FRIENDS`, `CHALLENGES` et `REPORTS`.
@@ -162,8 +172,10 @@ La table **USERS** contient toutes les informations liées à un joueur :
 - informations de connexion (email, mot de passe)
 - identité (pseudo, avatar)
 - apparence (banner, emblem)
-- statistiques (trophies, nbwin, nblose, etc.)
-- gestion du compte (role, isActive, isBanned…)
+- statistiques (trophy, nbwin, nblose, etc.)
+- statut du compte (role, is_active, last_seen)
+- modération (is_banned, ban_reason, ban_label, banned_until, nbreport)
+- sécurité (reset_password_token, reset_password_expires)
 
 Chaque utilisateur peut :
 
@@ -171,6 +183,9 @@ Chaque utilisateur peut :
 - envoyer ou recevoir des défis
 - participer à plusieurs matchs
 - signaler ou être signalé par d’autres joueurs
+
+> **Note :**  
+> L’avatar est stocké sur le disque (`/uploads/avatars`) et la colonne `avatar` reste généralement à `NULL`.
 
 **Cardinalités :**
 
@@ -190,7 +205,7 @@ Chaque puzzle inclut :
 - un **FEN** (position d’échecs)
 - une **solution** sous forme de JSONB (liste de coups)
 - un **niveau de difficulté (elo)**
-- un **thème** (fork, mate-in-1, sacrifice…)
+- des **thèmes** (`themes`, tableau de tags : mateIn1, fork, sacrifice…)
 
 > **Important :**  
 > La table `PUZZLES` n’a _aucune relation directe_ avec les autres tables.  
@@ -205,7 +220,8 @@ Cette table représente les **parties jouées**.
 Chaque match contient :
 
 - un mode : `solo` ou `multi`
-- une date de fin (`finishedAt`)
+- une date de fin (`finished_at`)
+- un état (`state`) au format JSON (progression, score, erreurs, puzzles utilisés)
 
 Un match est lié à ses participants via la table `MATCH_PLAYERS`.
 
@@ -220,9 +236,9 @@ C’est une table **de liaison** entre :
 
 Chaque entrée représente la **participation d’un joueur dans un match**, avec :
 
-- s’il a gagné (`isWinner`)
-- combien de puzzles il a résolus (`puzzlesSolved`)
-- combien de trophées il a gagnés ou perdus (`trophiesDelta`)
+- s’il a gagné (`is_winner`)
+- combien de puzzles il a résolus (`puzzles_solved`)
+- combien de trophées il a gagnés ou perdus (`trophies_delta`)
 
 **Cardinalités :**
 
@@ -240,6 +256,7 @@ Chaque relation contient :
 - un `requester_id` (celui qui envoie la demande)
 - un `receiver_id` (celui qui reçoit la demande)
 - un statut : `pending`, `accepted`, `blocked`
+- une date de création (`created_at`)
 
 **Cardinalités :**
 
@@ -257,6 +274,7 @@ Chaque défi contient :
 - un `from_user_id` (l’expéditeur)
 - un `to_user_id` (le destinataire)
 - un statut : `PENDING`, `ACCEPTED`, `REFUSED`
+- une date de création (`created_at`)
 
 **Cardinalités :**
 
@@ -274,7 +292,8 @@ Chaque report contient :
 - `reporter_id` : celui qui signale
 - `reported_id` : celui qui est signalé
 - un motif
-- un statut (`pending`, `reviewed`, `action_taken`)
+- une date de création (`created_at`)
+- un statut (par défaut `pending`)
 
 **Cardinalités :**
 

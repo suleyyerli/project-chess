@@ -1,45 +1,76 @@
-# Diagramme de flux — ChessBattle (front + JSON Server)
+# Diagramme de flux — ChessBattle (Front + API + Socket)
 
 ```mermaid
 flowchart TD
-    A[Utilisateur] --> B["SPA React (Vite) sur http://localhost:5173"]
-    B --> C{Navigation via React Router}
-    C -->|Home| H[Accueil /home]
-    C -->|Game| G[Jeu /game]
-    C -->|Classement| F[Classement /classement]
-    C -->|Profil| P[Profil /profil]
+    U[Utilisateur] --> F["SPA React (Vite)"]
+    F --> R{Navigation}
+
+    R -->|Home| H[Accueil /home]
+    R -->|Game| G[Jeu /game]
+    R -->|Classement| L[Classement /classement]
+    R -->|Profil| P[Profil /profil]
+    R -->|Admin| A[Admin /admin]
+
+    subgraph REST_API["API REST (Express)"]
+      AUTH["/auth/signup | /auth/login | /auth/me | /auth/password/*"]
+      USERS["/users/leaderboard | /users/active | /users/:id | /users/online/offline"]
+      MATCHES["/matches/start | /matches/:id/submit | /matches/:id/next | /matches/:id/finish"]
+      CHALL["/challenges (create/accept/refuse)"]
+      REPORTS["/reports (create)"]
+      ADMIN["/admin/users (ban/unban/delete)"]
+      PUZZLES["/puzzles | /puzzles/:id | /puzzles/random"]
+    end
+
+    subgraph SOCKET["Socket.io (matchs multi)"]
+      S1["challenge:received / challenge:accepted / challenge:refused"]
+      S2["match:state / match:puzzle / match:timer / match:ended"]
+      S3["Client -> match:submit"]
+    end
+
+    subgraph DB["PostgreSQL"]
+      T1[(users)]
+      T2[(puzzles)]
+      T3[(matches)]
+      T4[(match_players)]
+      T5[(challenges)]
+      T6[(reports)]
+      T7[(friends)]
+    end
 
     %% Classement / Profil
-    F --> F1[fetch GET /users]
-    F1 --> J[(JSON Server<br/>http://localhost:3000)]
-    J --> F2[Liste des users triés par trophées]
-    F2 --> F3[Affichage classement]
+    L --> USERS --> T1
+    P --> AUTH --> T1
+    P --> USERS --> T1
 
-    P --> P1[fetch GET /users?id=:id]
-    P --> P2[fetch GET /matches]
-    P1 --> J
-    P2 --> J
-    J --> P3[Données profil + matchs]
-    P3 --> P4[Stats profil]
+    %% Présence en ligne
+    G --> USERS --> T1
 
-    %% Jeu
-    G --> G1[fetch GET /puzzles?id=:id]
-    G1 --> J
-    J --> G2[Puzzle chargé dans Zustand]
-    G2 --> G3{Coup joueur}
-    G3 -->|Correct| G4[Score + puzzle suivant]
-    G3 -->|Incorrect| G5[Coeurs/erreurs décrémentés]
-    G4 --> G6[Timer ou limite d'erreurs atteinte ?]
-    G5 --> G6
-    G6 -->|Oui| M[FinishedModal]
-    M --> C
+    %% Jeu solo
+    G --> MATCHES --> T3
+    MATCHES --> T4
+    MATCHES --> T2
+
+    %% Défis + multi
+    G --> CHALL --> T5
+    CHALL --> SOCKET
+    SOCKET --> T3
+    SOCKET --> T4
+    SOCKET --> T2
+
+    %% Signalement & admin
+    G --> REPORTS --> T6
+    A --> ADMIN --> T1
+
+    %% Accès direct puzzles (debug/admin)
+    H --> PUZZLES --> T2
 
     %% Notes
     subgraph Ports
-      J -. écoute .-> L1[3000 JSON Server]
-      B -. écoute .-> L2[5173 Vite]
+      F -. écoute .-> P1[5173 Vite]
+      REST_API -. écoute .-> P2[4000 API]
+      SOCKET -. écoute .-> P3[4000 Socket.io]
     end
 ```
 
-- Le flux illustre le front actuel branché sur le mock `db.json` via JSON Server (aucun backend temps réel pour l'instant).
-- Les endpoints utilisés : `/users`, `/users?id=:id`, `/matches`, `/puzzles?id=:id`.
+- Le front consomme l’API REST pour l’auth, le profil, le classement et les matchs solo.
+- Les matchs multi sont orchestrés via **Socket.io** après acceptation d’un défi.

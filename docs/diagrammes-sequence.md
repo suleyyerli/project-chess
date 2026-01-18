@@ -1,35 +1,41 @@
 # Diagrammes de séquence ChessBattle
 
-## Duel temps réel
+## Duel temps réel (défi + match multi)
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant A as Joueur A (client)
     participant F as Frontend React
-    participant S as API/Socket backend
+    participant API as API REST
+    participant WS as Socket.io
     participant B as Joueur B (client)
 
-    A->>F: Clique sur \"Défier B\" (liste joueurs en ligne)
-    F->>S: POST /duels/invitations {opponentId=B}
-    S-->>F: 201 {invitationId, status: \"sent\"}
-    S-->>B: event challenge_received(invitationId, from=A)
-    B->>S: PATCH /duels/invitations/:id {decision: \"accepted\"}
-    S-->>A: event challenge_response(invitationId, accepted, roomId)
-    S-->>B: event challenge_response(invitationId, accepted, roomId)
-    A->>S: Socket join(roomId)
-    B->>S: Socket join(roomId)
-    S-->>A: event start_game(premierPuzzleFEN, timer=120s)
-    S-->>B: event start_game(premierPuzzleFEN, timer=120s)
-    loop Résolution d'un puzzle
-        A->>S: event submit_move(solution)
-        S->>S: Vérifie coup / solution, maj score/erreurs
-        S-->>A: event score_update | next_puzzle
-        S-->>B: Broadcast score_update
+    A->>F: Clique sur "Défier B"
+    F->>API: POST /challenges {toUserId=B}
+    API-->>F: 201 {challenge}
+    API->>WS: emit challenge:received (to B)
+    WS-->>B: challenge:received
+
+    B->>F: Accepte le défi
+    F->>API: POST /challenges/:id/accept
+    API->>API: Crée match multi + match_players
+    API->>WS: join room + emit match:state
+    API->>WS: emit match:puzzle (premier puzzle)
+    WS-->>A: match:state + match:puzzle
+    WS-->>B: match:state + match:puzzle
+
+    loop Résolution des puzzles
+        A->>WS: match:submit {matchId, puzzleId, result}
+        WS->>WS: Vérifie solution / update state
+        WS-->>A: match:score | match:error
+        WS-->>B: match:score | match:error
+        WS-->>A: match:state + match:puzzle
+        WS-->>B: match:state + match:puzzle
     end
-    S-->>A: event end_game(resultat, deltaELO)
-    S-->>B: event end_game(resultat, deltaELO)
-    F-->>A: Modal résumé + score final
+
+    WS-->>A: match:ended {winnerId, isDraw, reason}
+    WS-->>B: match:ended {winnerId, isDraw, reason}
 ```
 
 ## Consultation du classement
@@ -39,11 +45,13 @@ sequenceDiagram
     autonumber
     participant U as Joueur
     participant F as Frontend React
-    participant API as API REST / JSON Server
+    participant API as API REST
+    participant DB as PostgreSQL
 
-    U->>F: Ouvre page /classement
-    F->>API: GET /users
+    U->>F: Ouvre /classement
+    F->>API: GET /users/leaderboard
+    API->>DB: SELECT users ORDER BY trophy DESC WHERE is_banned=false
+    DB-->>API: [users]
     API-->>F: 200 [users]
-    F->>F: Filtre isbanned=false, trie trophy décroissant
-    F-->>U: Rend tableau classement
+    F-->>U: Affichage classement
 ```
