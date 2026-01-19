@@ -1,0 +1,73 @@
+.page {
+  padding: 2.5rem 0 3.5rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.9rem;
+  color: #ffffff;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #bdbdbd;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #f2f2f2;
+}
+
+.text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #dedede;
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #dedede;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.link {
+  color: #9ad27f;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #a9a9a9;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 2rem 0 2.5rem;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+}

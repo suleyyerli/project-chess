@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import styles from "./Footer.module.css";
 
 const Footer = () => {
@@ -34,6 +35,19 @@ const Footer = () => {
           >
             Portfolio
           </a>
+        </div>
+
+        <div className={styles.block}>
+          <p className={styles.blockTitle}>Légal</p>
+          <Link className={styles.link} to="/legal/mentions-legales">
+            Mentions légales
+          </Link>
+          <Link className={styles.link} to="/legal/confidentialite">
+            Politique de confidentialité
+          </Link>
+          <Link className={styles.link} to="/legal/cookies">
+            Politique cookies
+          </Link>
         </div>
 
         <div className={styles.block}>
