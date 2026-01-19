@@ -1,7 +1,9 @@
+import { getApiBase } from "../config/env";
+
+const API_BASE = getApiBase();
+
 export function toImageSrc(value) {
   if (!value || typeof value !== "string") return null;
-
-  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
   if (
     value.startsWith("http://") ||

@@ -22,14 +22,19 @@ Application full-stack de puzzles d'echecs avec mode multi en temps reel.
 
 ## Configuration
 
+### Backend
+
 1. Copier `backend/.env.example` vers `backend/.env`.
-2. Ajouter les variables manquantes dans `backend/.env` :
-   - `JWT_SECRET` (obligatoire)
-   - `JWT_REFRESH_SECRET` (recommande)
-   - `FRONTEND_ORIGIN` (ex: `http://localhost:5173`)
-   - `RESET_PASSWORD_URL` (ex: `http://localhost:5173/reset-password`)
-   - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` (pour le reset mdp)
-3. Cote front, `VITE_API_URL` pointe sur l'API (defaut: `http://localhost:4000`).
+2. Completer les variables manquantes (`JWT_SECRET`, SMTP, etc.).
+3. En production, utiliser `backend/.env.production` ou `ENV_FILE=backend/.env.production`
+   (chemin relatif au dossier courant) avec `NODE_ENV=production`
+   (les variables requises sont alors verifiees au demarrage).
+
+### Frontend
+
+- En dev, utiliser `frontend/.env` avec `VITE_API_URL` (defaut local).
+- En prod, utiliser `frontend/.env.production` (ou `vite build --mode <mode>`).
+  `VITE_API_URL` est obligatoire car il est injecte au build.
 
 ## Lancer avec Docker (recommande)
 

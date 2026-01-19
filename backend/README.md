@@ -13,7 +13,7 @@ API Node.js/Express + Socket.IO pour ChessBattle, avec base PostgreSQL via Prism
 ## Configuration
 
 1. Copier `backend/.env.example` vers `backend/.env`.
-2. Ajouter les variables suivantes :
+2. Completer les variables suivantes :
    - `JWT_SECRET` (obligatoire)
    - `JWT_REFRESH_SECRET` (recommande)
    - `JWT_EXPIRES_IN` (ex: `7d`)
@@ -21,6 +21,10 @@ API Node.js/Express + Socket.IO pour ChessBattle, avec base PostgreSQL via Prism
    - `FRONTEND_ORIGIN` (ex: `http://localhost:5173`)
    - `RESET_PASSWORD_URL` (ex: `http://localhost:5173/reset-password`)
    - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` (pour l'envoi d'emails)
+
+En production, utilisez `backend/.env.production` ou `ENV_FILE=backend/.env.production`
+(chemin relatif au dossier courant) avec `NODE_ENV=production`
+(les variables requises sont verifiees au demarrage).
 
 ## Installation
 

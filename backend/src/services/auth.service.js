@@ -4,6 +4,9 @@ const jwt = require("jsonwebtoken");
 const { sendMail } = require("../lib/mailer");
 const userRepository = require("../repositories/user.repository");
 const userService = require("./user.service");
+const { loadEnv, getResetPasswordUrl } = require("../config/env");
+
+loadEnv();
 
 const SALT_ROUNDS = 10;
 const MIN_PASSWORD_LENGTH = 8;
@@ -44,9 +47,7 @@ function ensurePasswordLength(password) {
 }
 
 function buildResetEmail({ user, token, expiresAt }) {
-  const base =
-    process.env.RESET_PASSWORD_URL ||
-    `${process.env.FRONTEND_ORIGIN || "http://localhost:5173"}/reset-password`;
+  const base = getResetPasswordUrl();
   const link = `${base}?token=${token}`;
   const expiresLabel = expiresAt.toLocaleString("fr-FR");
 

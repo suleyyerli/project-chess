@@ -1,7 +1,11 @@
 const path = require("path");
 const http = require("http");
 const express = require("express");
-const dotenv = require("dotenv");
+const { loadEnv, validateEnv, getFrontendOrigin } = require("./config/env");
+
+loadEnv();
+validateEnv();
+
 const prisma = require("./lib/prisma");
 const { initSocket } = require("./socket");
 const puzzleRoutes = require("./routes/puzzle.routes");
@@ -12,9 +16,7 @@ const userRoutes = require("./routes/user.routes");
 const reportRoutes = require("./routes/report.routes");
 const adminRoutes = require("./routes/admin.routes");
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
-
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const FRONTEND_ORIGIN = getFrontendOrigin();
 
 const app = express();
 

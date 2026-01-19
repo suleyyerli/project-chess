@@ -266,15 +266,33 @@ const Game = () => {
           <section className={styles.idle}>
             <h2 className={styles.title}>Bataille de problème</h2>
             <div className={styles.idleContent}>
-              <Card className={styles.rulesCard}>
-                <p className={styles.rulesIntro}>Les règles du jeu :</p>
-                <p className={styles.rulesText}>
-                  Résous un maximum de problème en moins de deux minutes.
-                  <br /> Chaque position devient plus corsée que la précédente
-                  et trois erreurs mettent fin à la partie.
-                </p>
-                <Button onClick={startGame} label="Mode solo (entraînement)" />
-              </Card>
+              <div className={styles.infoColumn}>
+                <Card className={styles.rulesCard}>
+                  <p className={styles.rulesIntro}>Les règles du jeu :</p>
+                  <p className={styles.rulesText}>
+                    Résous un maximum de problème en moins de deux minutes.
+                    <br /> Chaque position devient plus corsée que la précédente
+                    et trois erreurs mettent fin à la partie.
+                  </p>
+                  <Button onClick={startGame} label="Mode solo (entraînement)" />
+                </Card>
+
+                <Card className={styles.trophyCard}>
+                  <p className={styles.rulesIntro}>
+                    Système de trophées (multijoueur)
+                  </p>
+                  <p className={styles.rulesText}>
+                    Les trophées changent uniquement en multijoueur à la fin du
+                    match.
+                  </p>
+                  <ul className={styles.trophyList}>
+                    <li>Trophée &lt; 500 : victoire +8, défaite 0</li>
+                    <li>500 &lt;= trophée &lt; 1000 : victoire +8, défaite -8</li>
+                    <li>Trophée &gt;= 1000 : victoire +5, défaite -8</li>
+                    <li>Match nul : 0 pour les deux joueurs</li>
+                  </ul>
+                </Card>
+              </div>
 
               <Card className={styles.playersCard} variant="dark">
                 {incomingChallenge && (

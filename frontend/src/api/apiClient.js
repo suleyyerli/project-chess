@@ -4,13 +4,12 @@ import {
   getRefreshToken,
   setAuthTokens,
 } from "./authStorage";
+import { getApiBase } from "../config/env";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const API_BASE = getApiBase();
 let refreshPromise = null;
 
-export function getApiBase() {
-  return API_BASE;
-}
+export { getApiBase };
 
 export async function readErrorMessage(res) {
   try {

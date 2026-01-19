@@ -389,7 +389,7 @@ Relations principales :
 - Temps reel : Socket.io (match multi)
 - Auth : JWT + middleware d'acces
 - Fichiers : avatars stockes dans `/uploads/avatars`
-- Variables d'environnement : `VITE_API_URL`, `JWT_SECRET`, `FRONTEND_ORIGIN`
+- Variables d'environnement : `VITE_API_URL`, `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_ORIGIN`, `SMTP_*`
 
 ## 7. Schemas UML
 

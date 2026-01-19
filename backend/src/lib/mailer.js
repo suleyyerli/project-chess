@@ -1,4 +1,7 @@
 const nodemailer = require("nodemailer");
+const { loadEnv } = require("../config/env");
+
+loadEnv();
 
 let transporterSingleInstance = "";
 

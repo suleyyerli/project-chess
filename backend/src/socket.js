@@ -3,6 +3,9 @@ const { Server } = require("socket.io");
 const matchMultiService = require("./services/match-multi.service");
 const puzzleService = require("./services/puzzle.service");
 const userService = require("./services/user.service");
+const { loadEnv, getFrontendOrigin } = require("./config/env");
+
+loadEnv();
 
 let io;
 const userSockets = new Map();
@@ -196,7 +199,7 @@ const startMatchTimer = (matchId) => {
 const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173",
+      origin: getFrontendOrigin(),
       methods: ["GET", "POST"],
       credentials: true,
     },
