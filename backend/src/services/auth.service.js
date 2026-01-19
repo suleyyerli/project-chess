@@ -6,6 +6,7 @@ const userRepository = require("../repositories/user.repository");
 const userService = require("./user.service");
 
 const SALT_ROUNDS = 10;
+const MIN_PASSWORD_LENGTH = 8;
 const ACCESS_TOKEN_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 const REFRESH_TOKEN_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || "30d";
 const RESET_TOKEN_TTL_MS = Number(process.env.RESET_TOKEN_TTL_MS) || 3600000;
@@ -29,6 +30,17 @@ function toSafeUser(user) {
 
 function hashResetToken(token) {
   return crypto.createHash("sha256").update(token).digest("hex");
+}
+
+function ensurePasswordLength(password) {
+  if (typeof password !== "string") {
+    throw new Error("Mot de passe invalide");
+  }
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    throw new Error(
+      `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères`
+    );
+  }
 }
 
 function buildResetEmail({ user, token, expiresAt }) {
@@ -82,6 +94,8 @@ async function signup(payload) {
   if (!email || !password || !pseudo) {
     throw new Error("email, mot de passe et pseudo sont requis");
   }
+
+  ensurePasswordLength(password);
 
   const normalizedEmail = email.toLowerCase();
 
@@ -227,6 +241,8 @@ async function resetPassword(payload) {
   if (new Date(user.reset_password_expires) < new Date()) {
     throw new Error("Token invalide ou expiré");
   }
+
+  ensurePasswordLength(password);
 
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
   await userRepository.update(user.id, {
