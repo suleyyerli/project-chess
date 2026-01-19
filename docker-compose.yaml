@@ -1,9 +1,11 @@
 services:
   db:
-    image: postgres:17-alpine
+    build:
+      context: .
+      dockerfile: ./docker/images/database.dockerfile
     container_name: dev-chessbattle-db
     env_file:
-      - ./backend/.env
+      - .env
     ports:
       - "5432:5432"
     volumes:
@@ -11,9 +13,11 @@ services:
       - ./backend/db/init:/docker-entrypoint-initdb.d:ro
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: ../docker/images/backend.dev.dockerfile
     container_name: dev-chessbattle-backend
-    env_file: ./backend/.env
+    env_file: .env
     volumes:
       - ./backend:/app
       - backend_uploads:/app/uploads
@@ -24,7 +28,9 @@ services:
       - db
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: ../docker/images/frontend.dev.dockerfile
     container_name: dev-chessbattle-frontend
     volumes:
       - ./frontend:/app

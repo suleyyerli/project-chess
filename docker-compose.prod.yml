@@ -17,8 +17,7 @@ services:
       dockerfile: Dockerfile.prod
     container_name: chessbattle-backend
     restart: unless-stopped
-    env_file:
-      - ./backend/.env.production
+    environnement:
     environment:
       NODE_ENV: production
     depends_on:
@@ -42,7 +41,7 @@ services:
       - chessbattle
 
   cloudflared:
-    image: cloudflare/cloudflared:2025.2.1
+    image: cloudflare/cloudflared:latest
     container_name: chessbattle-tunnel
     restart: unless-stopped
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
