@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: chessbattle-db
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.production
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./backend/db/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - chessbattle
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: chessbattle-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.production
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - db
+    expose:
+      - "4000"
+    volumes:
+      - backend_uploads:/app/uploads
+    networks:
+      - chessbattle
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: chessbattle-frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - chessbattle
+
+  cloudflared:
+    image: cloudflare/cloudflared:2025.2.1
+    container_name: chessbattle-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - chessbattle
+
+volumes:
+  db_data:
+  backend_uploads:
+
+networks:
+  chessbattle:
+    name: chessbattle

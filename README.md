@@ -47,6 +47,10 @@ docker compose up --build
 # docker compose exec backend npx prisma db push
 ```
 
+## Deploiement (prod)
+
+Voir `docs/docker/doc-arch-prod.md` pour la procedure complete (Docker + Cloudflare Tunnel).
+
 ## Lancer en local
 
 1. Demarrer Postgres.
