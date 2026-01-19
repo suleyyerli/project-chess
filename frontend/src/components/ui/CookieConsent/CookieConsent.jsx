@@ -8,14 +8,14 @@ const CookieConsent = () => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = sessionStorage.getItem(STORAGE_KEY);
     if (!stored) {
       setVisible(true);
     }
   }, []);
 
   const handleChoice = (value) => {
-    localStorage.setItem(STORAGE_KEY, value);
+    sessionStorage.setItem(STORAGE_KEY, value);
     setVisible(false);
   };
 

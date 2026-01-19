@@ -23,7 +23,7 @@ const Home = () => {
       }
 
       try {
-        const { user: fetchedUser } = await getMe(token);
+        const { user: fetchedUser } = await getMe();
         if (!fetchedUser) {
           setUserError("Utilisateur introuvable");
           return;

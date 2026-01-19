@@ -37,6 +37,27 @@ async function login(req, res) {
   }
 }
 
+async function refresh(req, res) {
+  try {
+    const result = await authService.refreshSession(req.body);
+    return res.status(200).json(result);
+  } catch (error) {
+    const message =
+      error?.message || "Impossible de rafraîchir le token";
+    let status = 400;
+
+    if (message.includes("JWT_SECRET")) {
+      status = 500;
+    } else if (message.includes("invalide") || message.includes("expiré")) {
+      status = 401;
+    } else if (message.includes("introuvable")) {
+      status = 404;
+    }
+
+    return res.status(status).json({ message });
+  }
+}
+
 async function me(req, res) {
   try {
     const user = await authService.getCurrentUser(req.user.id);
@@ -96,6 +117,7 @@ async function resetPassword(req, res) {
 module.exports = {
   signup,
   login,
+  refresh,
   me,
   updateMe,
   logout,

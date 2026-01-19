@@ -4,7 +4,7 @@ import Card from "../ui/Card/Card";
 import Button from "../ui/Button/Button";
 import styles from "./Form.module.css";
 import { login, requestPasswordReset, signup } from "../../api/authApi";
-import { setAuthToken } from "../../api/authStorage";
+import { setAuthTokens } from "../../api/authStorage";
 
 const initialData = {
   pseudo: "",
@@ -92,7 +92,10 @@ const Form = () => {
         if (!result?.token) {
           throw new Error("Token manquant dans la réponse");
         }
-        setAuthToken(result.token);
+        setAuthTokens({
+          token: result.token,
+          refreshToken: result.refreshToken,
+        });
         setFeedback("Connecté !");
         setFormData(initialData);
         navigate("/profil");

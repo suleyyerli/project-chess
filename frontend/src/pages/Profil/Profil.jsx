@@ -49,7 +49,7 @@ const Profil = () => {
       }
 
       try {
-        const { user: profile } = await getMe(token);
+        const { user: profile } = await getMe();
         if (!profile) {
           setError("Profil introuvable");
           return;

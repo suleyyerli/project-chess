@@ -1,96 +1,39 @@
-import { getAuthToken } from "./authStorage";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
-
-async function readErrorMessage(res) {
-  try {
-    const data = await res.json();
-    return data?.message || data?.error?.message || "Erreur inconnue";
-  } catch {
-    return "Erreur inconnue";
-  }
-}
+import { apiJson } from "./apiClient";
 
 export async function signup({ email, pseudo, password }) {
-  const res = await fetch(`${API_BASE}/auth/signup`, {
+  return apiJson("/auth/signup", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, pseudo, password }),
+    body: { email, pseudo, password },
+    skipRefresh: true,
   });
-
-  if (!res.ok) {
-    throw new Error(await readErrorMessage(res));
-  }
-
-  return res.json();
 }
 
 export async function login({ email, password }) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  return apiJson("/auth/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: { email, password },
+    skipRefresh: true,
   });
-
-  if (!res.ok) {
-    throw new Error(await readErrorMessage(res));
-  }
-
-  return res.json();
 }
 
-export async function getMe(token = getAuthToken()) {
-  if (!token) {
-    throw new Error("Token manquant (connecte-toi)");
-  }
-
-  const res = await fetch(`${API_BASE}/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  if (!res.ok) {
-    throw new Error(await readErrorMessage(res));
-  }
-
-  return res.json();
+export async function getMe() {
+  return apiJson("/auth/me", { requireAuth: true });
 }
 
-export async function updateMe(payload, token = getAuthToken()) {
-  if (!token) {
-    throw new Error("Token manquant (connecte-toi)");
-  }
-
-  const res = await fetch(`${API_BASE}/auth/me`, {
+export async function updateMe(payload) {
+  return apiJson("/auth/me", {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(payload),
+    body: payload,
+    requireAuth: true,
   });
-
-  if (!res.ok) {
-    throw new Error(await readErrorMessage(res));
-  }
-
-  return res.json();
 }
 
-export async function logout(token = getAuthToken()) {
-  if (!token) {
-    return null;
-  }
-
-  const res = await fetch(`${API_BASE}/auth/logout`, {
+export async function logout() {
+  return apiJson("/auth/logout", {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    requireAuth: true,
+    skipRefresh: true,
   });
-
-  if (!res.ok) {
-    throw new Error(await readErrorMessage(res));
-  }
-
-  return res.json();
 }
 
 export async function requestPasswordReset(email) {
@@ -98,17 +41,11 @@ export async function requestPasswordReset(email) {
     throw new Error("Email requis");
   }
 
-  const res = await fetch(`${API_BASE}/auth/password/forgot`, {
+  return apiJson("/auth/password/forgot", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
+    body: { email },
+    skipRefresh: true,
   });
-
-  if (!res.ok) {
-    throw new Error(await readErrorMessage(res));
-  }
-
-  return res.json();
 }
 
 export async function resetPassword({ token, password }) {
@@ -116,15 +53,9 @@ export async function resetPassword({ token, password }) {
     throw new Error("Token et mot de passe requis");
   }
 
-  const res = await fetch(`${API_BASE}/auth/password/reset`, {
+  return apiJson("/auth/password/reset", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token, password }),
+    body: { token, password },
+    skipRefresh: true,
   });
-
-  if (!res.ok) {
-    throw new Error(await readErrorMessage(res));
-  }
-
-  return res.json();
 }

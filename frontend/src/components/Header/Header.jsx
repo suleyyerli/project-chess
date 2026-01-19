@@ -46,7 +46,7 @@ const Header = () => {
     }
 
     let active = true;
-    getMe(authToken)
+    getMe()
       .then((data) => {
         if (active) {
           setUser(data?.user ?? null);
@@ -65,7 +65,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await logout(authToken);
+      await logout();
     } catch {
       // ignore: logout server is best-effort
     }

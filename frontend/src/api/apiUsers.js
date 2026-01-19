@@ -1,17 +1,13 @@
 // src/api/apiUsers.js
 
-import { getAuthToken } from "./authStorage";
+import { apiFetch, apiJson } from "./apiClient";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
-const USERS_URL = `${API_BASE}/users`;
+const USERS_URL = "/users";
 
 //pour la page classement
 export async function getUsersClassement() {
   try {
-    const res = await fetch(`${USERS_URL}/leaderboard`);
-    if (!res.ok) throw new Error("Erreur de chargement des utilisateurs");
-
-    const data = await res.json();
+    const data = await apiJson(`${USERS_URL}/leaderboard`);
 
     return Array.isArray(data) ? data : [];
   } catch (error) {
@@ -22,11 +18,7 @@ export async function getUsersClassement() {
 //POur la liste des joueurs actif
 export async function getActiveUsers() {
   try {
-    const res = await fetch(`${USERS_URL}/active`);
-    if (!res.ok)
-      throw new Error("Erreur de chargement des utilisateurs actifs");
-
-    const data = await res.json();
+    const data = await apiJson(`${USERS_URL}/active`);
 
     return Array.isArray(data) ? data : [];
   } catch (error) {
@@ -37,10 +29,7 @@ export async function getActiveUsers() {
 // pour la page profil
 export async function getUserById(userId) {
   try {
-    const res = await fetch(`${USERS_URL}/${userId}`);
-    if (!res.ok) throw new Error("Erreur lors de la récupération du profil");
-
-    const user = await res.json();
+    const user = await apiJson(`${USERS_URL}/${userId}`);
     return user ?? null;
   } catch (error) {
     console.error("Erreur lors du chargement du profil :", error);
@@ -49,15 +38,10 @@ export async function getUserById(userId) {
 }
 
 async function postPresence(path, { keepalive = false } = {}) {
-  const token = getAuthToken();
-  if (!token) return;
-
   try {
-    await fetch(`${USERS_URL}/${path}`, {
+    await apiFetch(`${USERS_URL}/${path}`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      requireAuth: true,
       keepalive,
     });
   } catch (error) {

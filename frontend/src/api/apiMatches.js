@@ -1,45 +1,18 @@
+import { apiJson } from "./apiClient";
 import { getAuthToken } from "./authStorage";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
-const API_URL = `${API_BASE}/matches`;
-
-async function readErrorMessage(res) {
-  try {
-    const data = await res.json();
-    return data?.message || data?.error?.message || "Erreur inconnue";
-  } catch {
-    return "Erreur inconnue";
-  }
-}
-
-function getAuthHeaders(token) {
-  if (!token) {
-    throw new Error("Token manquant (connecte-toi)");
-  }
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-}
+const API_URL = "/matches";
 
 export async function getMatchesByUser(userId, { limit } = {}) {
-  const token = getAuthToken();
-  if (!token) return [];
+  if (!getAuthToken()) return [];
 
   const query =
     Number.isInteger(limit) && limit > 0 ? `?limit=${limit}` : "";
-  const queryUrl = `${API_URL}/me${query}`;
 
   try {
-    const response = await fetch(queryUrl, {
-      headers: {
-        ...getAuthHeaders(token),
-      },
+    const matches = await apiJson(`${API_URL}/me${query}`, {
+      requireAuth: true,
     });
-    if (!response.ok) {
-      throw new Error(await readErrorMessage(response));
-    }
-
-    const matches = await response.json();
     if (!userId) return matches;
 
     return matches.filter(
@@ -53,76 +26,30 @@ export async function getMatchesByUser(userId, { limit } = {}) {
   }
 }
 
-export async function startSoloMatch(token = getAuthToken()) {
-  const response = await fetch(`${API_URL}/start`, {
+export async function startSoloMatch() {
+  return apiJson(`${API_URL}/start`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeaders(token),
-    },
+    requireAuth: true,
   });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
-  }
-
-  return response.json();
 }
 
-export async function submitMatchResult(
-  matchId,
-  payload,
-  token = getAuthToken()
-) {
-  const response = await fetch(`${API_URL}/${matchId}/submit`, {
+export async function submitMatchResult(matchId, payload) {
+  return apiJson(`${API_URL}/${matchId}/submit`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeaders(token),
-    },
-    body: JSON.stringify(payload),
+    body: payload,
+    requireAuth: true,
   });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
-  }
-
-  return response.json();
 }
 
-export async function getNextPuzzle(matchId, token = getAuthToken()) {
-  const response = await fetch(`${API_URL}/${matchId}/next`, {
-    headers: {
-      ...getAuthHeaders(token),
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
-  }
-
-  return response.json();
+export async function getNextPuzzle(matchId) {
+  return apiJson(`${API_URL}/${matchId}/next`, { requireAuth: true });
 }
 
-export async function finishMatch(
-  matchId,
-  payload,
-  { keepalive = false } = {},
-  token = getAuthToken()
-) {
-  const response = await fetch(`${API_URL}/${matchId}/finish`, {
+export async function finishMatch(matchId, payload, { keepalive = false } = {}) {
+  return apiJson(`${API_URL}/${matchId}/finish`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeaders(token),
-    },
-    body: JSON.stringify(payload),
+    body: payload,
     keepalive,
+    requireAuth: true,
   });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
-  }
-
-  return response.json();
 }

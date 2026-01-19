@@ -6,7 +6,8 @@ const userRepository = require("../repositories/user.repository");
 const userService = require("./user.service");
 
 const SALT_ROUNDS = 10;
-const JWT_EXPIRES_IN = "7d";
+const ACCESS_TOKEN_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
+const REFRESH_TOKEN_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || "30d";
 const RESET_TOKEN_TTL_MS = Number(process.env.RESET_TOKEN_TTL_MS) || 3600000;
 
 function getJwtSecret() {
@@ -15,6 +16,10 @@ function getJwtSecret() {
     throw new Error("JWT_SECRET manquant dans la configuration");
   }
   return secret;
+}
+
+function getRefreshSecret() {
+  return process.env.JWT_REFRESH_SECRET || getJwtSecret();
 }
 
 function toSafeUser(user) {
@@ -48,6 +53,27 @@ function buildResetEmail({ user, token, expiresAt }) {
     subject: "Réinitialisation de votre mot de passe",
     text,
   };
+}
+
+function buildAccessToken(user) {
+  return jwt.sign(
+    {
+      sub: user.id,
+      email: user.email,
+      pseudo: user.pseudo,
+      role: user.role,
+    },
+    getJwtSecret(),
+    { expiresIn: ACCESS_TOKEN_EXPIRES_IN }
+  );
+}
+
+function buildRefreshToken(user) {
+  return jwt.sign(
+    { sub: user.id, type: "refresh" },
+    getRefreshSecret(),
+    { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
+  );
 }
 
 async function signup(payload) {
@@ -101,19 +127,47 @@ async function login(payload) {
     throw new Error("Mot de passe incorrect");
   }
 
-  const secret = getJwtSecret();
-  const token = jwt.sign(
-    {
-      sub: user.id,
-      email: user.email,
-      pseudo: user.pseudo,
-      role: user.role,
-    },
-    secret,
-    { expiresIn: JWT_EXPIRES_IN }
-  );
+  const token = buildAccessToken(user);
+  const refreshToken = buildRefreshToken(user);
 
-  return { token, user: userService.toPublicUser(toSafeUser(user)) };
+  return {
+    token,
+    refreshToken,
+    user: userService.toPublicUser(toSafeUser(user)),
+  };
+}
+
+async function refreshSession(payload) {
+  const refreshToken = payload?.refreshToken;
+  if (!refreshToken) {
+    throw new Error("Refresh token requis");
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, getRefreshSecret());
+  } catch {
+    throw new Error("Refresh token invalide ou expiré");
+  }
+
+  if (decoded?.type !== "refresh") {
+    throw new Error("Refresh token invalide ou expiré");
+  }
+
+  const userId = Number(decoded?.sub);
+  if (!Number.isInteger(userId)) {
+    throw new Error("Refresh token invalide ou expiré");
+  }
+
+  const user = await userRepository.findById(userId);
+  if (!user) {
+    throw new Error("Utilisateur introuvable");
+  }
+
+  return {
+    token: buildAccessToken(user),
+    refreshToken: buildRefreshToken(user),
+  };
 }
 
 async function getCurrentUser(userId) {
@@ -187,6 +241,7 @@ async function resetPassword(payload) {
 module.exports = {
   signup,
   login,
+  refreshSession,
   getCurrentUser,
   updateCurrentUser,
   requestPasswordReset,

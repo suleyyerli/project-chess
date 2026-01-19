@@ -1,10 +1,11 @@
 // src/api/puzzleApi.js
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
+import { apiJson } from "./apiClient";
+
+const PUZZLES_URL = "/puzzles";
 
 export async function fetchPuzzleById(id) {
-  const res = await fetch(`${API_BASE}/puzzles?id=${id}`);
-  if (!res.ok) throw new Error("Erreur lors du chargement du puzzle");
-  const data = await res.json();
+  const query = encodeURIComponent(id);
+  const data = await apiJson(`${PUZZLES_URL}?id=${query}`);
   return data[0] || null;
 }

@@ -1,81 +1,29 @@
-import { getAuthToken } from "./authStorage";
+import { apiJson } from "./apiClient";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
-const CHALLENGES_URL = `${API_BASE}/challenges`;
+const CHALLENGES_URL = "/challenges";
 
-async function readErrorMessage(res) {
-  try {
-    const data = await res.json();
-    return data?.message || data?.error?.message || "Erreur inconnue";
-  } catch {
-    return "Erreur inconnue";
-  }
-}
-
-function getAuthHeaders(token) {
-  if (!token) {
-    throw new Error("Token manquant (connecte-toi)");
-  }
-  return { Authorization: `Bearer ${token}` };
-}
-
-export async function createChallenge(toUserId, token = getAuthToken()) {
-  const response = await fetch(CHALLENGES_URL, {
+export async function createChallenge(toUserId) {
+  return apiJson(CHALLENGES_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeaders(token),
-    },
-    body: JSON.stringify({ toUserId }),
+    body: { toUserId },
+    requireAuth: true,
   });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
-  }
-
-  return response.json();
 }
 
-export async function listMyChallenges(token = getAuthToken()) {
-  const response = await fetch(`${CHALLENGES_URL}/me`, {
-    headers: {
-      ...getAuthHeaders(token),
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
-  }
-
-  return response.json();
+export async function listMyChallenges() {
+  return apiJson(`${CHALLENGES_URL}/me`, { requireAuth: true });
 }
 
-export async function acceptChallenge(id, token = getAuthToken()) {
-  const response = await fetch(`${CHALLENGES_URL}/${id}/accept`, {
+export async function acceptChallenge(id) {
+  return apiJson(`${CHALLENGES_URL}/${id}/accept`, {
     method: "POST",
-    headers: {
-      ...getAuthHeaders(token),
-    },
+    requireAuth: true,
   });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
-  }
-
-  return response.json();
 }
 
-export async function refuseChallenge(id, token = getAuthToken()) {
-  const response = await fetch(`${CHALLENGES_URL}/${id}/refuse`, {
+export async function refuseChallenge(id) {
+  return apiJson(`${CHALLENGES_URL}/${id}/refuse`, {
     method: "POST",
-    headers: {
-      ...getAuthHeaders(token),
-    },
+    requireAuth: true,
   });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
-  }
-
-  return response.json();
 }
