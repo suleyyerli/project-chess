@@ -1,5 +1,7 @@
 const nodemailer = require("nodemailer");
 
+let transporterSingleInstance = "";
+
 function getMailerConfig() {
   const host = process.env.SMTP_HOST;
   const port = Number(process.env.SMTP_PORT) || 465;
@@ -17,9 +19,15 @@ function getMailerConfig() {
     auth: { user, pass },
   };
 }
+function getTransporter() {
+  if (transporterSingleInstance == "") {
+    transporterSingleInstance = nodemailer.createTransport(getMailerConfig());
+  }
+  return transporterSingleInstance;
+}
 
 async function sendMail({ to, subject, text, html }) {
-  const transporter = nodemailer.createTransport(getMailerConfig());
+  const transporter = getTransporter();
   const from = process.env.MAIL_FROM || process.env.SMTP_USER;
 
   return transporter.sendMail({
