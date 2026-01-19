@@ -1,98 +1,86 @@
 # ChessBattle
 
-Front-end React (Vite) branche sur un JSON Server local pour simuler l'API. Le backend Express/Socket n'est pas encore en place; tout s'appuie sur le mock JSON.
+Application full-stack de puzzles d'echecs avec mode multi en temps reel.
 
-## Architecture
+## Stack
 
-- `frontend/` : SPA React + Vite et mock API (`db.json`).
-- `docs/` : cahier de conception (description, diagrammes, bdd, figma).
-- `backend/` : dossier reserve pour le futur serveur Node.
+- Frontend : React + Vite + Zustand + Socket.IO client
+- Backend : Node.js + Express + Socket.IO
+- Donnees : PostgreSQL + Prisma
+
+## Structure du repo
+
+- `frontend/` : SPA React
+- `backend/` : API + websocket
+- `docs/` : documentation projet
+- `docker-compose.yaml` : stack locale complete
 
 ## Prerequis
 
-- Node.js 20+ et npm.
-- Deux terminaux (un pour le front, un pour le JSON Server).
+- Node.js 20+
+- PostgreSQL (ou Docker)
 
-## Installation
+## Configuration
+
+1. Copier `backend/.env.example` vers `backend/.env`.
+2. Ajouter les variables manquantes dans `backend/.env` :
+   - `JWT_SECRET` (obligatoire)
+   - `JWT_REFRESH_SECRET` (recommande)
+   - `FRONTEND_ORIGIN` (ex: `http://localhost:5173`)
+   - `RESET_PASSWORD_URL` (ex: `http://localhost:5173/reset-password`)
+   - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` (pour le reset mdp)
+3. Cote front, `VITE_API_URL` pointe sur l'API (defaut: `http://localhost:4000`).
+
+## Lancer avec Docker (recommande)
+
+```bash
+cp backend/.env.example backend/.env
+# ajouter les variables JWT/SMTP dans backend/.env
+
+docker compose up --build
+# au premier demarrage, synchroniser le schema
+# docker compose exec backend npx prisma db push
+```
+
+## Lancer en local
+
+1. Demarrer Postgres.
+2. Backend :
+
+```bash
+cd backend
+npm install
+npx prisma db push
+npm run dev
+```
+
+3. Frontend :
 
 ```bash
 cd frontend
 npm install
-```
-
-## Lancer en developpement
-
-1. Lancer le mock API (port 3000) :
-
-```bash
-cd frontend
-npm run api
-```
-
-2. Dans un autre terminal, lancer le front (port 5173) :
-
-```bash
-cd frontend
 npm run dev
 ```
 
-3. Ouvrir http://localhost:5173. Le front consomme le JSON Server sur http://localhost:3000.
+Acces : `http://localhost:5173` (front) et `http://localhost:4000` (API).
 
-## Donnees et endpoints (JSON Server)
+## Authentification
 
-- Base : `frontend/db.json` (puzzles, users, matches). Les modifications du fichier sont auto-reflechies.
-- Endpoints principaux :
-  - `GET /puzzles`
-  - `GET /users`
-  - `GET /matches`
-- Exemple : `GET http://localhost:3000/users?id=1` renvoie le profil utilise sur la page Profil.
-- Les assets references par `avatar` ou `emblem` pointent soit vers `src/assets`, soit vers des URLs externes.
+- Login retourne `token` (access) + `refreshToken`.
+- Rafraichissement via `POST /auth/refresh` avec `{ "refreshToken": "..." }`.
+- Les endpoints proteges utilisent `Authorization: Bearer <token>`.
 
-## Scripts utiles (dans `frontend/`)
+## Scripts utiles
 
-- `npm run dev` : serveur Vite.
-- `npm run api` : JSON Server sur le `db.json` local.
-- `npm run build` : build de production.
-- `npm run preview` : previsualisation du build.
-- `npm run lint` : linting eslint.
+- `frontend/`
+  - `npm run dev` : serveur Vite
+  - `npm run build` : build
+  - `npm run preview` : preview
+- `backend/`
+  - `npm run dev` : API + Socket.IO en watch
+  - `npm run start` : API en prod
+  - `npm run prisma:studio` : Prisma Studio
 
-## Etat fonctionnel actuel
+## Ressources
 
-- Routes : `/` (Landing), `/home`, `/game`, `/classement`, `/profil`.
-- Stores et API client bases sur `http://localhost:3000` (`src/api/*.js`).
-- Auth/temps reel non encore implantes; les donnees sont statiques/mockees.
-
-## Ressources projet
-
-Consulter `docs/description-projet.md` pour la vision produit, `docs/diagrammes-sequence.md`
-Dossier figma pour les maquettes et la charte graphique du projet.
-
-## Backend : endpoints auth (Express)
-
-Le backend (dossier `backend/`) expose une API d’auth simple avec JWT (un seul token, pas de refresh token pour le moment).
-La documentation “ce qui a été fait” est dans `docs/auth-insomnia.md`.
-
-Base URL en local : `http://localhost:4000`
-
-Endpoints :
-
-- `POST /auth/signup` : créer un compte (renvoie l’utilisateur créé)
-- `POST /auth/login` : se connecter (renvoie `{ token, user }`)
-- `GET /auth/me` : récupérer mon profil (protégé)
-- `PUT /auth/me` : modifier mon profil (protégé)
-- `POST /auth/logout` : logout côté client (JWT stateless)
-
-### Exemple Bearer token
-
-Après un `login`, tu récupères un `token`. Ensuite, tu l’envoies dans le header :
-
-```http
-Authorization: Bearer <TOKEN>
-```
-
-Exemple rapide :
-
-```bash
-curl http://localhost:4000/auth/me \
-  -H "Authorization: Bearer <TOKEN>"
-```
+Voir `docs/` (diagrammes, flux, etc.).
