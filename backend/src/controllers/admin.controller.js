@@ -9,7 +9,8 @@ async function listUsers(req, res) {
     });
     return res.json(users);
   } catch (error) {
-    const message = error?.message || "Impossible de récupérer les utilisateurs";
+    const message =
+      error?.message || "Impossible de récupérer les utilisateurs";
     return res.status(400).json({ message });
   }
 }

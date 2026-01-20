@@ -253,10 +253,10 @@ const Game = () => {
       ? result === "win"
         ? "Victoire !"
         : result === "lose"
-        ? "Défaite"
-        : result === "draw"
-        ? "Match nul"
-        : "Match terminé"
+          ? "Défaite"
+          : result === "draw"
+            ? "Match nul"
+            : "Match terminé"
       : "Bien joué !";
 
   return (
@@ -274,7 +274,10 @@ const Game = () => {
                     <br /> Chaque position devient plus corsée que la précédente
                     et trois erreurs mettent fin à la partie.
                   </p>
-                  <Button onClick={startGame} label="Mode solo (entraînement)" />
+                  <Button
+                    onClick={startGame}
+                    label="Mode solo (entraînement)"
+                  />
                 </Card>
 
                 <Card className={styles.trophyCard}>
@@ -287,7 +290,9 @@ const Game = () => {
                   </p>
                   <ul className={styles.trophyList}>
                     <li>Trophée &lt; 500 : victoire +8, défaite 0</li>
-                    <li>500 &lt;= trophée &lt; 1000 : victoire +8, défaite -8</li>
+                    <li>
+                      500 &lt;= trophée &lt; 1000 : victoire +8, défaite -8
+                    </li>
                     <li>Trophée &gt;= 1000 : victoire +5, défaite -8</li>
                     <li>Match nul : 0 pour les deux joueurs</li>
                   </ul>

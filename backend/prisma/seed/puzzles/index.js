@@ -61,9 +61,10 @@ async function seedPuzzles(prisma, options = {}) {
     await prisma.puzzles.deleteMany();
   }
 
-  const chunkSize = Number.isInteger(options.chunkSize) && options.chunkSize > 0
-    ? options.chunkSize
-    : 500;
+  const chunkSize =
+    Number.isInteger(options.chunkSize) && options.chunkSize > 0
+      ? options.chunkSize
+      : 500;
 
   let inserted = 0;
   for (let i = 0; i < data.length; i += chunkSize) {
@@ -74,7 +75,7 @@ async function seedPuzzles(prisma, options = {}) {
 
   console.log(
     `[seed] puzzles: inserted ${inserted}/${data.length}` +
-      (skipped ? ` (skipped ${skipped})` : "")
+      (skipped ? ` (skipped ${skipped})` : ""),
   );
 }
 

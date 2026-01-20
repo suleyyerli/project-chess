@@ -149,7 +149,7 @@ function calculateTrophiesDelta({ trophy, isWinner, isDraw }) {
 
 function getUserTrophy(match, userId) {
   const entry = match.match_players?.find(
-    (player) => player.user_id === userId
+    (player) => player.user_id === userId,
   );
   const trophy = entry?.users?.trophy;
   return Number.isFinite(trophy) ? trophy : 0;
@@ -439,8 +439,8 @@ async function finishMatch({
         puzzles_solved: entry.puzzlesSolved,
         is_winner: entry.isWinner,
         trophies_delta: entry.trophiesDelta,
-      })
-    )
+      }),
+    ),
   );
 
   await Promise.all(
@@ -457,7 +457,7 @@ async function finishMatch({
         data.nblose = { increment: 1 };
       }
       return userRepository.update(entry.userId, data);
-    })
+    }),
   );
 
   matchStates.delete(id);

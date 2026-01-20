@@ -18,10 +18,7 @@ function resolveEnvFile() {
       : path.resolve(process.cwd(), envFile);
   }
 
-  return path.resolve(
-    backendRoot,
-    isProd() ? ".env.production" : ".env"
-  );
+  return path.resolve(backendRoot, isProd() ? ".env.production" : ".env");
 }
 
 function loadEnv() {
@@ -56,8 +53,8 @@ function validateEnv() {
   if (missing.length > 0) {
     const error = new Error(
       `Missing required environment variables for production: ${missing.join(
-        ", "
-      )}`
+        ", ",
+      )}`,
     );
     error.missing = missing;
     throw error;
@@ -65,7 +62,7 @@ function validateEnv() {
 
   if (!process.env.JWT_REFRESH_SECRET) {
     console.warn(
-      "[config] JWT_REFRESH_SECRET not set in production; falling back to JWT_SECRET."
+      "[config] JWT_REFRESH_SECRET not set in production; falling back to JWT_SECRET.",
     );
   }
 }
@@ -83,8 +80,7 @@ function getFrontendOrigin() {
 function getResetPasswordUrl() {
   loadEnv();
   return (
-    process.env.RESET_PASSWORD_URL ||
-    `${getFrontendOrigin()}/reset-password`
+    process.env.RESET_PASSWORD_URL || `${getFrontendOrigin()}/reset-password`
   );
 }
 

@@ -38,7 +38,10 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/home" element={protectedElement(<Home />)} />
           <Route path="/game" element={protectedElement(<Game />)} />
-          <Route path="/classement" element={protectedElement(<Classement />)} />
+          <Route
+            path="/classement"
+            element={protectedElement(<Classement />)}
+          />
           <Route path="/profil" element={protectedElement(<Profil />)} />
           <Route path="/admin" element={adminElement(<Admin />)} />
         </Routes>

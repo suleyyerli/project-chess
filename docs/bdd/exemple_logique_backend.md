@@ -72,6 +72,7 @@ async function generateProgressivePack({
 4. `POST /matches/:id/finish` → fin de partie (erreurs max, abandon, etc.)
 
 Ce mécanisme garantit :
+
 - une montée en difficulté progressive
 - la non-répétition des puzzles sur un même match
 - un fallback si une tranche Elo est vide

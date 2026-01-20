@@ -25,7 +25,12 @@ async function findRandom() {
   return puzzle ?? null;
 }
 
-async function findRandomByEloRange({ minElo, maxElo, excludeIds = [], take = 1 }) {
+async function findRandomByEloRange({
+  minElo,
+  maxElo,
+  excludeIds = [],
+  take = 1,
+}) {
   const where = {
     elo: {
       gte: minElo,

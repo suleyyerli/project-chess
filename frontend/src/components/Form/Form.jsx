@@ -62,7 +62,11 @@ const Form = () => {
       return;
     }
 
-    if (!isReset && isRegister && formData.password !== formData.confirmPassword) {
+    if (
+      !isReset &&
+      isRegister &&
+      formData.password !== formData.confirmPassword
+    ) {
       setError("Les mots de passe ne correspondent pas.");
       return;
     }
@@ -72,7 +76,7 @@ const Form = () => {
       if (isReset) {
         await requestPasswordReset(formData.email);
         setFeedback(
-          "Si un compte existe, un email a été envoyé avec la suite."
+          "Si un compte existe, un email a été envoyé avec la suite.",
         );
         setFormData({ ...initialData, email: formData.email });
       } else if (isRegister) {
@@ -206,10 +210,10 @@ const Form = () => {
             isSubmitting
               ? "En cours..."
               : isReset
-              ? "Envoyer le lien"
-              : isRegister
-              ? "Je m'inscris"
-              : "Je me connecte"
+                ? "Envoyer le lien"
+                : isRegister
+                  ? "Je m'inscris"
+                  : "Je me connecte"
           }
           className={styles.submit}
           disabled={isSubmitting}

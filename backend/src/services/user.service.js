@@ -35,11 +35,7 @@ function resolveBanInfo(user) {
 
   const rawUntil = user.banned_until;
   const until =
-    rawUntil instanceof Date
-      ? rawUntil
-      : rawUntil
-        ? new Date(rawUntil)
-        : null;
+    rawUntil instanceof Date ? rawUntil : rawUntil ? new Date(rawUntil) : null;
   const hasUntil = Boolean(until && !Number.isNaN(until.getTime()));
   const expired = hasUntil ? until.getTime() <= Date.now() : false;
   const isBanned = Boolean(user.is_banned) && (!hasUntil || !expired);
@@ -162,7 +158,7 @@ async function updateProfile(userId, payload) {
           if (err && err.code === "ENOENT") return;
           throw err;
         }
-      })
+      }),
     );
   }
 
@@ -190,13 +186,18 @@ async function updateProfile(userId, payload) {
         const buffer = Buffer.from(base64, "base64");
         await fs.mkdir(avatarDir, { recursive: true });
         await removeExistingAvatars();
-        await fs.writeFile(path.join(avatarDir, `${avatarBase}.${ext}`), buffer);
+        await fs.writeFile(
+          path.join(avatarDir, `${avatarBase}.${ext}`),
+          buffer,
+        );
 
         // Store on filesystem: do not store binary in DB
         avatarData = null;
       } else {
         if (/^https?:\/\//i.test(trimmed)) {
-          throw new Error("Avatar en URL non supporté (upload fichier uniquement)");
+          throw new Error(
+            "Avatar en URL non supporté (upload fichier uniquement)",
+          );
         }
         // attend une chaîne base64
         const buffer = Buffer.from(trimmed, "base64");

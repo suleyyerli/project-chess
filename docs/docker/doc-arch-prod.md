@@ -1,6 +1,7 @@
 # Mise en place de l’architecture Docker (mode production)
 
 ## Objectif
+
 Deployer l’application ChessBattle en production sur un serveur accessible en SSH,
 avec Docker, et exposer le domaine via Cloudflare Tunnel.
 
@@ -26,6 +27,7 @@ flowchart LR
 ```
 
 Points clefs :
+
 - Aucun port public n’est necessaire : le tunnel sortant Cloudflare suffit.
 - Le frontend est un build statique (Vite) servi par Nginx.
 - L’API et le websocket (Socket.IO) passent par `api.DOMAINE`.

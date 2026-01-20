@@ -7,8 +7,8 @@ const Embleme = ({ nbtrophy, trophy, selectedId, onSelect }) => {
   const safeTrophy = Number.isFinite(nbtrophy)
     ? nbtrophy
     : Number.isFinite(trophy)
-    ? trophy
-    : 0;
+      ? trophy
+      : 0;
 
   return (
     <Card variant="dark" className={styles.card}>
@@ -59,7 +59,9 @@ const Embleme = ({ nbtrophy, trophy, selectedId, onSelect }) => {
                 )}
 
                 {unlocked && isSelected && (
-                  <figcaption className={styles.selectedOverlay}>Équipé</figcaption>
+                  <figcaption className={styles.selectedOverlay}>
+                    Équipé
+                  </figcaption>
                 )}
               </figure>
 

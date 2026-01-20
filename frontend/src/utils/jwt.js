@@ -1,6 +1,7 @@
 function decodeBase64Url(payload) {
   const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-  const padding = normalized.length % 4 === 0 ? "" : "=".repeat(4 - (normalized.length % 4));
+  const padding =
+    normalized.length % 4 === 0 ? "" : "=".repeat(4 - (normalized.length % 4));
   return atob(normalized + padding);
 }
 

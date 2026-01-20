@@ -42,8 +42,7 @@ async function refresh(req, res) {
     const result = await authService.refreshSession(req.body);
     return res.status(200).json(result);
   } catch (error) {
-    const message =
-      error?.message || "Impossible de rafraîchir le token";
+    const message = error?.message || "Impossible de rafraîchir le token";
     let status = 400;
 
     if (message.includes("JWT_SECRET")) {
@@ -88,7 +87,10 @@ async function logout(req, res) {
   try {
     await userService.clearLastSeen(req.user.id);
   } catch (error) {
-    console.warn("Failed to clear last_seen on logout:", error?.message || error);
+    console.warn(
+      "Failed to clear last_seen on logout:",
+      error?.message || error,
+    );
   }
   // JWT est stateless : côté client, on supprime le token
   return res.status(200).json({ message: "Déconnecté" });
@@ -109,7 +111,8 @@ async function resetPassword(req, res) {
     const result = await authService.resetPassword(req.body);
     return res.json(result);
   } catch (error) {
-    const message = error?.message || "Impossible de réinitialiser le mot de passe";
+    const message =
+      error?.message || "Impossible de réinitialiser le mot de passe";
     return res.status(400).json({ message });
   }
 }

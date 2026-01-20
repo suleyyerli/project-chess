@@ -24,9 +24,7 @@ async function getRandomPuzzle() {
 
 function normalizeIdList(value) {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((id) => Number(id))
-    .filter((id) => Number.isInteger(id));
+  return value.map((id) => Number(id)).filter((id) => Number.isInteger(id));
 }
 
 async function generateProgressivePack({

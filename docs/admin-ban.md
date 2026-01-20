@@ -1,6 +1,7 @@
 # Système de bannissement (admin) + signalement utilisateur
 
 Ce document décrit le système de bannissement simple :
+
 - **Un joueur peut signaler un adversaire** (labels “Triche” / “Anti‑jeu”).
 - **Un admin voit les joueurs + nombre de signalements** et décide d’un ban.
 
@@ -34,6 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);
 ```
 
 Puis :
+
 ```
 npx prisma db pull
 npx prisma generate
@@ -44,15 +46,19 @@ npx prisma generate
 ## 2) Signalement (user)
 
 Endpoint :
+
 ```
 POST /reports
 ```
+
 Body :
+
 ```json
 { "reportedId": 2, "label": "Triche" }
 ```
 
 Labels autorisés :
+
 - `Triche`
 - `Anti‑jeu`
 
@@ -63,11 +69,13 @@ Labels autorisés :
 ## 3) Admin — Liste des joueurs
 
 Endpoint :
+
 ```
 GET /admin/users?search=&status=all|banned|active&minReports=
 ```
 
 Réponse :
+
 ```json
 [
   {
@@ -88,21 +96,26 @@ Réponse :
 ## 4) Admin — Bannir / Débannir
 
 ### Bannir
+
 ```
 POST /admin/users/:id/ban
 ```
+
 Body :
+
 ```json
 { "label": "Triche", "duration": "1w" }
 ```
 
 Durées supportées :
+
 - `1d`
 - `1w`
 - `1m`
 - `permanent`
 
 ### Débannir
+
 ```
 POST /admin/users/:id/unban
 ```
@@ -141,6 +154,7 @@ Le bouton de signalement est affiché dans la modale de fin de match multijoueur
 Il envoie un `POST /reports` avec un label (`Triche` ou `Anti‑jeu`).
 
 Extrait (simplifié) :
+
 ```js
 await createReport({ reportedId: opponent.id, label: reportLabel });
 ```
@@ -152,6 +166,7 @@ await createReport({ reportedId: opponent.id, label: reportLabel });
 Route admin : `/admin` (visible uniquement si `role === "admin"`).
 
 Le panel permet :
+
 - rechercher un joueur (pseudo / email)
 - filtrer par statut (actif / banni)
 - filtrer par nombre de signalements
@@ -164,5 +179,6 @@ Le panel permet :
 ## 9) Profil — affichage du bannissement
 
 Le profil affiche un encart si le joueur est banni, avec :
+
 - le label (`Triche` / `Anti‑jeu`)
 - la fin de ban (ou “Définitif”)

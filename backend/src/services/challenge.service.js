@@ -29,11 +29,11 @@ function toChallengePayload(challenge) {
     id: challenge.id ?? null,
     from: toUserRef(
       challenge.users_challenges_from_user_idTousers,
-      challenge.from_user_id
+      challenge.from_user_id,
     ),
     to: toUserRef(
       challenge.users_challenges_to_user_idTousers,
-      challenge.to_user_id
+      challenge.to_user_id,
     ),
     status: challenge.status ?? null,
     createdAt: toIsoString(challenge.created_at),

@@ -10,17 +10,22 @@ const {
 } = require("../socket");
 
 function mapErrorToStatus(message) {
-  if (message.includes("introuvable") || message.includes("non trouvé")) return 404;
+  if (message.includes("introuvable") || message.includes("non trouvé"))
+    return 404;
   if (message.includes("Accès interdit")) return 403;
   if (message.includes("banni") || message.includes("indisponible")) return 403;
   if (message.includes("déjà traité")) return 409;
-  if (message.includes("invalide") || message.includes("Impossible")) return 400;
+  if (message.includes("invalide") || message.includes("Impossible"))
+    return 400;
   return 400;
 }
 
 async function createChallenge(req, res) {
   try {
-    const challenge = await challengeService.createChallenge(req.user.id, req.body);
+    const challenge = await challengeService.createChallenge(
+      req.user.id,
+      req.body,
+    );
     emitToUser(challenge?.to?.id, "challenge:received", challenge);
     return res.status(201).json(challenge);
   } catch (error) {
@@ -32,7 +37,9 @@ async function createChallenge(req, res) {
 
 async function listMyChallenges(req, res) {
   try {
-    const challenges = await challengeService.listChallengesForUser(req.user.id);
+    const challenges = await challengeService.listChallengesForUser(
+      req.user.id,
+    );
     return res.json(challenges);
   } catch (error) {
     const message = error?.message || "Impossible de récupérer les défis";
@@ -45,7 +52,7 @@ async function acceptChallenge(req, res) {
   try {
     const challenge = await challengeService.acceptChallenge(
       req.params.id,
-      req.user.id
+      req.user.id,
     );
     const match = await matchMultiService.createMultiMatch({
       fromUserId: challenge?.from?.id,
@@ -53,16 +60,19 @@ async function acceptChallenge(req, res) {
     });
     const socketsJoined = joinUsersToRoom(
       [challenge?.from?.id, challenge?.to?.id],
-      match.room
+      match.room,
     );
-    console.log(`Match created: ${match.matchId} room=${match.room} sockets=${socketsJoined}`);
+    console.log(
+      `Match created: ${match.matchId} room=${match.room} sockets=${socketsJoined}`,
+    );
     startMatchTimer(match.matchId);
     const io = getIO();
     io.to(match.room).emit("match:state", {
       matchId: match.matchId,
       state: match.state,
     });
-    const firstPuzzleId = match.state?.puzzleIds?.[match.state?.currentIndex ?? 0];
+    const firstPuzzleId =
+      match.state?.puzzleIds?.[match.state?.currentIndex ?? 0];
     if (Number.isInteger(firstPuzzleId)) {
       try {
         const puzzle = await puzzleService.getPuzzleById(firstPuzzleId);
@@ -76,7 +86,11 @@ async function acceptChallenge(req, res) {
         console.warn("Puzzle initial introuvable pour le match", match.matchId);
       }
     }
-    emitToUsers([challenge?.from?.id, challenge?.to?.id], "challenge:accepted", challenge);
+    emitToUsers(
+      [challenge?.from?.id, challenge?.to?.id],
+      "challenge:accepted",
+      challenge,
+    );
     return res.json(challenge);
   } catch (error) {
     const message = error?.message || "Impossible d'accepter le défi";
@@ -89,9 +103,13 @@ async function refuseChallenge(req, res) {
   try {
     const challenge = await challengeService.refuseChallenge(
       req.params.id,
-      req.user.id
+      req.user.id,
     );
-    emitToUsers([challenge?.from?.id, challenge?.to?.id], "challenge:refused", challenge);
+    emitToUsers(
+      [challenge?.from?.id, challenge?.to?.id],
+      "challenge:refused",
+      challenge,
+    );
     return res.json(challenge);
   } catch (error) {
     const message = error?.message || "Impossible de refuser le défi";

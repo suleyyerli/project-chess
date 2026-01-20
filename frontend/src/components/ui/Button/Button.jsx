@@ -13,8 +13,8 @@ const Button = ({
     variant === "red"
       ? styles.red
       : variant === "brown"
-      ? styles.brown
-      : styles.green;
+        ? styles.brown
+        : styles.green;
   const hasIcon = Boolean(icon);
   const hasLabel = Boolean(label);
 

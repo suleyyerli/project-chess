@@ -98,9 +98,7 @@ const emitToUser = (userId, event, payload) => {
 
 const emitToUsers = (userIds, event, payload) => {
   const uniqueIds = new Set(
-    userIds
-      .map((id) => Number(id))
-      .filter((id) => Number.isInteger(id))
+    userIds.map((id) => Number(id)).filter((id) => Number.isInteger(id)),
   );
   uniqueIds.forEach((id) => emitToUser(id, event, payload));
 };
@@ -115,9 +113,7 @@ const joinUserSocketsToRoom = (userId, room) => {
 
 const joinUsersToRoom = (userIds, room) => {
   const uniqueIds = new Set(
-    userIds
-      .map((id) => Number(id))
-      .filter((id) => Number.isInteger(id))
+    userIds.map((id) => Number(id)).filter((id) => Number.isInteger(id)),
   );
   let count = 0;
   uniqueIds.forEach((id) => {
@@ -293,7 +289,9 @@ const initSocket = (httpServer) => {
         });
 
         if (!outcome.finished && outcome.isCorrect && outcome.nextPuzzleId) {
-          const puzzle = await puzzleService.getPuzzleById(outcome.nextPuzzleId);
+          const puzzle = await puzzleService.getPuzzleById(
+            outcome.nextPuzzleId,
+          );
           io.to(room).emit("match:puzzle", {
             matchId: outcome.matchId,
             puzzleId: outcome.nextPuzzleId,
@@ -327,7 +325,9 @@ const initSocket = (httpServer) => {
       if (userId !== undefined) {
         unregisterSocket(userId, socket.id);
       }
-      console.log(`Socket disconnected: ${socket.id} (user ${userId}) (${reason})`);
+      console.log(
+        `Socket disconnected: ${socket.id} (user ${userId}) (${reason})`,
+      );
 
       if (userId === undefined) {
         return;
@@ -347,7 +347,10 @@ const initSocket = (httpServer) => {
 
         await Promise.all(
           matches.map(async ({ matchId, state }) => {
-            const opponentId = matchMultiService.getOpponentId(state?.players, userId);
+            const opponentId = matchMultiService.getOpponentId(
+              state?.players,
+              userId,
+            );
             const room = matchMultiService.getMatchRoom(matchId);
             io.to(room).emit("match:opponent_disconnected", {
               matchId,
@@ -367,10 +370,13 @@ const initSocket = (httpServer) => {
               isDraw: outcome.isDraw,
               reason: outcome.state?.finishedReason ?? "abandon",
             });
-          })
+          }),
         );
       } catch (error) {
-        console.warn("Impossible de clôturer le match après déconnexion", error);
+        console.warn(
+          "Impossible de clôturer le match après déconnexion",
+          error,
+        );
       }
     });
   });
@@ -380,7 +386,9 @@ const initSocket = (httpServer) => {
 
 const getIO = () => {
   if (!io) {
-    throw new Error("Socket.io not initialized. Call initSocket(httpServer) first.");
+    throw new Error(
+      "Socket.io not initialized. Call initSocket(httpServer) first.",
+    );
   }
 
   return io;

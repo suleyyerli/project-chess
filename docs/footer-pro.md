@@ -22,6 +22,7 @@ Le footer est global, car il est inclus dans le layout :
 ## Contenu
 
 Le footer affiche :
+
 - Nom du projet : **ChessBattle**
 - Description courte
 - Développeur : **suleyyerli**

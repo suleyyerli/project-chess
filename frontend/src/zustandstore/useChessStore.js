@@ -71,13 +71,17 @@ export const useChessStore = create((set, get) => ({
       [];
     const { color: matingColor, fen: resolvedFen } = resolveMatingColor(
       puzzle.fen,
-      normalizedSolution
+      normalizedSolution,
     );
     let fen = resolvedFen;
     let game = new Chess(fen);
     let startStep = 0;
 
-    if (matingColor && normalizedSolution.length > 0 && game.turn() !== matingColor) {
+    if (
+      matingColor &&
+      normalizedSolution.length > 0 &&
+      game.turn() !== matingColor
+    ) {
       const preMove = game.move(normalizedSolution[0], { sloppy: true });
       if (preMove) {
         startStep = 1;

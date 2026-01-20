@@ -15,7 +15,8 @@ async function listActiveUsers(req, res) {
     const users = await userService.getActiveUsers();
     return res.json(users);
   } catch (error) {
-    const message = error?.message || "Impossible de récupérer les joueurs actifs";
+    const message =
+      error?.message || "Impossible de récupérer les joueurs actifs";
     return res.status(500).json({ message });
   }
 }

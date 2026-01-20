@@ -10,6 +10,7 @@ L’auth fonctionne avec un token JWT (“access token”) qui est renvoyé au l
 Ensuite, le front (ou Insomnia) envoie ce token dans le header HTTP `Authorization`.
 
 Le token :
+
 - est signé avec la variable d’environnement `JWT_SECRET`
 - contient `sub` (user id), `email`, `pseudo`, `role`
 - expire au bout de `7d` (valeur actuelle dans le code)
@@ -29,6 +30,7 @@ Body attendu :
 ```
 
 Réponse :
+
 - `201` avec l’utilisateur créé (sans le mot de passe)
 - erreurs possibles : `400` (champs manquants), `409` (email/pseudo déjà utilisé)
 
@@ -45,6 +47,7 @@ Body attendu :
 ```
 
 Réponse :
+
 - `200` avec `{ token, user }`
 - erreurs possibles : `404` (utilisateur introuvable), `401` (mot de passe incorrect), `500` si `JWT_SECRET` manque
 
@@ -68,6 +71,7 @@ Authorization: Bearer <TOKEN>
 ```
 
 Réponse :
+
 - `200` avec `{ user: { ... } }`
 - erreurs possibles : `401` si token manquant / invalide
 
@@ -76,6 +80,7 @@ Réponse :
 But : modifier son profil.
 
 Champs supportés :
+
 - `pseudo` (doit être unique)
 - `bio`
 - `avatar` (string base64) ou `null`
@@ -87,6 +92,7 @@ Exemple de body :
 ```
 
 Réponse :
+
 - `200` avec `{ user: { ... } }` mis à jour
 - erreurs possibles : `400` (aucune donnée, avatar mauvais format, etc.), `409` (pseudo déjà utilisé)
 
@@ -100,14 +106,14 @@ Dans ce projet, le JWT est **stateless** : il n’y a rien à invalider côté s
 Donc cet endpoint renvoie juste un message, et c’est le client qui supprime le token.
 
 Réponse :
+
 - `200` `{ "message": "Déconnecté" }`
 
 ## Validation (ce que j’ai vérifié)
 
 J’ai validé le scénario complet suivant :
 
-1) Création d’un compte via `POST /auth/signup`
-2) Connexion via `POST /auth/login` et récupération du `token`
-3) Accès au profil via `GET /auth/me` avec `Authorization: Bearer ...`
-4) Mise à jour du profil via `PUT /auth/me` avec le même header
-
+1. Création d’un compte via `POST /auth/signup`
+2. Connexion via `POST /auth/login` et récupération du `token`
+3. Accès au profil via `GET /auth/me` avec `Authorization: Bearer ...`
+4. Mise à jour du profil via `PUT /auth/me` avec le même header

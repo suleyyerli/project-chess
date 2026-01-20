@@ -6,8 +6,16 @@ import Button from "../../components/ui/Button/Button";
 import styles from "./GameBoard.module.css";
 
 const GameBoard = () => {
-  const { timeLeft, score, errors, maxErrors, status, endMatch, mode, opponent } =
-    useGameStore();
+  const {
+    timeLeft,
+    score,
+    errors,
+    maxErrors,
+    status,
+    endMatch,
+    mode,
+    opponent,
+  } = useGameStore();
   const handleAbandon = () => {
     if (status === "running") {
       endMatch("abandon");

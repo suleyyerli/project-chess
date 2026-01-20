@@ -5,6 +5,7 @@
 Dans le cadre du projet **ChessBattle** (Licence / Bac +3), l’objectif est d’alimenter la table `puzzles` de la base de données avec des **puzzles d’échecs variés**, afin d’éviter que les utilisateurs rencontrent toujours les mêmes problèmes lors des parties.
 
 Contraintes fonctionnelles :
+
 - Utiliser une source fiable et massive de puzzles
 - Garantir une progression par niveau (Elo)
 - Limiter le nombre de puzzles par tranche de difficulté
@@ -29,6 +30,7 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
 ```
 
 Colonnes utilisées dans le projet :
+
 - `FEN` : position initiale du puzzle
 - `Moves` : solution en notation UCI
 - `Rating` : difficulté du puzzle (Elo)
@@ -79,6 +81,7 @@ Le fichier CSV décompressé (~1 Go) est ensuite utilisé comme source pour les 
 ### Objectif
 
 Créer un CSV réduit contenant :
+
 - des puzzles entre **300 et 1999 Elo**
 - **100 puzzles maximum par tranche de 50 Elo**
 - tous types de puzzles confondus
@@ -86,6 +89,7 @@ Créer un CSV réduit contenant :
 ### Principe
 
 Le script :
+
 1. Lit le CSV ligne par ligne (sans charger tout en mémoire)
 2. Classe chaque puzzle dans une tranche `(rating // 50) * 50`
 3. Sélectionne aléatoirement 100 puzzles par tranche (reservoir sampling)
@@ -104,6 +108,7 @@ Le script :
 ### Objectif
 
 Créer un CSV spécifique pour les puzzles de type **échec et mat** :
+
 - uniquement `mateIn1`, `mateIn2`, `mateIn3`
 - exclusion de `mateIn4+`
 - **300 puzzles par tranche de 50 Elo**
@@ -112,6 +117,7 @@ Créer un CSV spécifique pour les puzzles de type **échec et mat** :
 ### Principe
 
 Le script :
+
 1. Filtre les puzzles par Elo
 2. Filtre les puzzles dont `Themes` contient `mateIn1|mateIn2|mateIn3`
 3. Sélectionne jusqu’à 300 puzzles par tranche
@@ -177,6 +183,7 @@ FROM puzzles_mate_raw;
 ```
 
 Transformations appliquées :
+
 - `moves` → tableau JSON (`solution`)
 - `rating` → `elo`
 - `themes` → tableau PostgreSQL (`TEXT[]`)
@@ -210,10 +217,10 @@ LIMIT 1;
 ## 10. Conclusion
 
 Cette méthode permet :
+
 - un **import massif maîtrisé**
 - une **progression Elo cohérente**
 - une **grande variété de puzzles**
 - une base propre, performante et exploitable côté backend
 
 La solution est réaliste, professionnelle et adaptée à un projet Bac +3 / Licence.
-

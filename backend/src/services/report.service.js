@@ -7,7 +7,7 @@ function normalizeLabel(value) {
   if (!value) return null;
   const trimmed = String(value).trim();
   const found = LABELS.find(
-    (label) => label.toLowerCase() === trimmed.toLowerCase()
+    (label) => label.toLowerCase() === trimmed.toLowerCase(),
   );
   return found || null;
 }

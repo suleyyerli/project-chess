@@ -11,13 +11,13 @@ const PrivacyPolicy = () => {
             <h1 className={styles.title}>
               Politique de confidentialité (RGPD)
             </h1>
-            <p className={styles.subtitle}>
-              Dernière mise à jour : 20/03/2025
-            </p>
+            <p className={styles.subtitle}>Dernière mise à jour : 20/03/2025</p>
           </div>
 
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>1. Responsable du traitement</h2>
+            <h2 className={styles.sectionTitle}>
+              1. Responsable du traitement
+            </h2>
             <p className={styles.text}>
               Le responsable du traitement des données du site ChessBattle est
               le développeur du projet.
@@ -39,7 +39,9 @@ const PrivacyPolicy = () => {
             <h2 className={styles.sectionTitle}>2. Données collectées</h2>
             <ul className={styles.list}>
               <li>Identité : email, pseudo.</li>
-              <li>Authentification : mot de passe chiffré, jetons de session.</li>
+              <li>
+                Authentification : mot de passe chiffré, jetons de session.
+              </li>
               <li>
                 Profil : avatar, bannière, emblème, bio, date d’inscription.
               </li>
@@ -82,9 +84,8 @@ const PrivacyPolicy = () => {
             <h2 className={styles.sectionTitle}>5. Destinataires</h2>
             <p className={styles.text}>
               Les données sont accessibles par l’éditeur du site et ses
-              prestataires techniques strictement nécessaires (hébergement,
-              base de données, envoi d’e-mails). Elles ne sont ni vendues ni
-              cédées.
+              prestataires techniques strictement nécessaires (hébergement, base
+              de données, envoi d’e-mails). Elles ne sont ni vendues ni cédées.
             </p>
           </section>
 
@@ -127,9 +128,9 @@ const PrivacyPolicy = () => {
             <h2 className={styles.sectionTitle}>9. Vos droits</h2>
             <p className={styles.text}>
               Vous disposez des droits d’accès, de rectification, d’effacement,
-              d’opposition, de limitation et de portabilité. Vous pouvez
-              exercer vos droits via le contact indiqué ci-dessus. Vous pouvez
-              également déposer une réclamation auprès de la CNIL.
+              d’opposition, de limitation et de portabilité. Vous pouvez exercer
+              vos droits via le contact indiqué ci-dessus. Vous pouvez également
+              déposer une réclamation auprès de la CNIL.
             </p>
           </section>
 

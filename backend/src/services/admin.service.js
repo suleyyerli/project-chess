@@ -13,7 +13,7 @@ function normalizeLabel(label) {
   if (!label) return null;
   const trimmed = String(label).trim();
   const found = BAN_LABELS.find(
-    (item) => item.toLowerCase() === trimmed.toLowerCase()
+    (item) => item.toLowerCase() === trimmed.toLowerCase(),
   );
   return found || null;
 }

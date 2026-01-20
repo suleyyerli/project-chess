@@ -89,7 +89,7 @@ async function submitMatch(req, res) {
     const result = await matchService.submitMatch(
       req.params.id,
       req.user.id,
-      req.body
+      req.body,
     );
     return res.json(result);
   } catch (error) {
@@ -115,7 +115,7 @@ async function finishMatch(req, res) {
     const result = await matchService.finishMatch(
       req.params.id,
       req.user.id,
-      req.body
+      req.body,
     );
     return res.json(result);
   } catch (error) {

@@ -379,12 +379,10 @@ if (normalizeResult(result) === null) throw new Error("Résultat invalide");
 Voici le scénario complet que j’ai implémenté :
 
 1. **Les deux joueurs se connectent**
-
    - Le front appelle `connectSocket()` (Socket.IO client).
    - Le backend authentifie avec JWT.
 
 2. **A défie B**
-
    - REST `POST /challenges` → un challenge est créé.
    - Émission WS `challenge:received` pour B.
 
@@ -406,7 +404,7 @@ const match = await matchMultiService.createMultiMatch({
 });
 const socketsJoined = joinUsersToRoom(
   [challenge?.from?.id, challenge?.to?.id],
-  match.room
+  match.room,
 );
 startMatchTimer(match.matchId);
 io.to(match.room).emit("match:state", {
@@ -416,7 +414,6 @@ io.to(match.room).emit("match:state", {
 ```
 
 4. **Les joueurs jouent**
-
    - Chaque puzzle résolu/raté envoie `match:submit`.
    - Le serveur valide et met à jour l’état.
    - Les deux joueurs reçoivent :
@@ -547,7 +544,7 @@ socket.emit(
   { matchId, puzzleId: currentPuzzleId, result },
   (ack) => {
     if (!ack?.ok) console.error("match:submit failed", ack?.message);
-  }
+  },
 );
 ```
 

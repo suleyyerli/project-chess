@@ -19,10 +19,13 @@ L’objectif est simple : informer l’utilisateur et stocker son choix, sans co
 - **Si un choix existe** → la bannière ne s’affiche plus.
 
 La clé utilisée est :
+
 ```
 cookie_consent
 ```
+
 Valeurs possibles :
+
 - `accepted`
 - `refused`
 
@@ -33,6 +36,7 @@ Pour réafficher la bannière, il suffit de supprimer cette clé dans le navigat
 ## Implémentation
 
 ### Composant
+
 Fichier : `frontend/src/components/ui/CookieConsent/CookieConsent.jsx`
 
 ```js
@@ -41,14 +45,17 @@ if (!stored) setVisible(true);
 ```
 
 Quand l’utilisateur clique sur un bouton :
+
 ```js
 localStorage.setItem("cookie_consent", "accepted");
 ```
 
 ### Intégration globale
+
 La bannière est injectée dans le layout commun :
 
 Fichier : `frontend/src/components/Layout/Layout.jsx`
+
 ```js
 <CookieConsent />
 ```

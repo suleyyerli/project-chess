@@ -36,7 +36,9 @@
   border: 1px solid var(--banner-border);
   background: linear-gradient(240deg, var(--banner-start), var(--banner-end));
   box-shadow: 0 8px 18px var(--banner-shadow);
-  transition: transform 0.25s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.3s ease;
   padding: 0.9rem 1.15rem;
   cursor: pointer;
   display: flex;

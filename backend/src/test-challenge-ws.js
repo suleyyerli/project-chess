@@ -7,11 +7,17 @@ const userIdB = Number(process.env.USER_ID_B);
 const baseUrl = process.env.API_BASE_URL || "http://localhost:4000";
 
 if (!tokenA || !tokenB || !Number.isInteger(userIdB)) {
-  console.error("Usage: TOKEN_A=... TOKEN_B=... USER_ID_B=2 node test-challenge-ws.js");
+  console.error(
+    "Usage: TOKEN_A=... TOKEN_B=... USER_ID_B=2 node test-challenge-ws.js",
+  );
   process.exit(1);
 }
 
-const eventsToLog = ["challenge:received", "challenge:accepted", "challenge:refused"];
+const eventsToLog = [
+  "challenge:received",
+  "challenge:accepted",
+  "challenge:refused",
+];
 
 function connectSocket(label, token) {
   const socket = io(baseUrl, {
@@ -63,7 +69,7 @@ function requestJson(method, path, token, payload) {
             reject(err);
           }
         });
-      }
+      },
     );
 
     req.on("error", reject);
@@ -95,7 +101,7 @@ async function run() {
   const acceptResponse = await requestJson(
     "POST",
     `/challenges/${challengeId}/accept`,
-    tokenB
+    tokenB,
   );
 
   console.log("Challenge accepted", acceptResponse.body);

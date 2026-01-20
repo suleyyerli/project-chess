@@ -41,7 +41,7 @@ function ensurePasswordLength(password) {
   }
   if (password.length < MIN_PASSWORD_LENGTH) {
     throw new Error(
-      `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères`
+      `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères`,
     );
   }
 }
@@ -77,16 +77,14 @@ function buildAccessToken(user) {
       role: user.role,
     },
     getJwtSecret(),
-    { expiresIn: ACCESS_TOKEN_EXPIRES_IN }
+    { expiresIn: ACCESS_TOKEN_EXPIRES_IN },
   );
 }
 
 function buildRefreshToken(user) {
-  return jwt.sign(
-    { sub: user.id, type: "refresh" },
-    getRefreshSecret(),
-    { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
-  );
+  return jwt.sign({ sub: user.id, type: "refresh" }, getRefreshSecret(), {
+    expiresIn: REFRESH_TOKEN_EXPIRES_IN,
+  });
 }
 
 async function signup(payload) {

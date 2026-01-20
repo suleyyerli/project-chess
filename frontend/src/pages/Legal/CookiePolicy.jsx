@@ -8,9 +8,7 @@ const CookiePolicy = () => {
         <Card className={styles.card}>
           <div>
             <h1 className={styles.title}>Politique cookies</h1>
-            <p className={styles.subtitle}>
-              Dernière mise à jour : 20/03/2025
-            </p>
+            <p className={styles.subtitle}>Dernière mise à jour : 20/03/2025</p>
           </div>
 
           <section className={styles.section}>
@@ -26,7 +24,8 @@ const CookiePolicy = () => {
             <h2 className={styles.sectionTitle}>2. Stockages nécessaires</h2>
             <ul className={styles.list}>
               <li>
-                <strong>auth_token</strong> : jeton d’accès pour l’authentification.
+                <strong>auth_token</strong> : jeton d’accès pour
+                l’authentification.
               </li>
               <li>
                 <strong>refresh_token</strong> : jeton de renouvellement de

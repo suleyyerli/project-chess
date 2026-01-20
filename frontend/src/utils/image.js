@@ -14,7 +14,7 @@ export function toImageSrc(value) {
     return value;
   }
 
-  if (value.startsWith("/uploads/")) {
+  if (value.startsWith("/api/uploads/")) {
     return `${API_BASE}${value}`;
   }
 

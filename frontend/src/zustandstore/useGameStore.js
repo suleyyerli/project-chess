@@ -20,7 +20,8 @@ function buildStateUpdate(serverState) {
 
   if (Number.isFinite(serverState.score)) next.score = serverState.score;
   if (Number.isFinite(serverState.errors)) next.errors = serverState.errors;
-  if (Number.isFinite(serverState.maxErrors)) next.maxErrors = serverState.maxErrors;
+  if (Number.isFinite(serverState.maxErrors))
+    next.maxErrors = serverState.maxErrors;
   if (typeof serverState.finishedReason === "string") {
     next.result = serverState.finishedReason;
   }
@@ -143,8 +144,7 @@ export const useGameStore = create((set, get) => ({
     const selfId = get().selfId;
     const players = state?.players || {};
     const selfState = normalizePlayerState(players?.[selfId]);
-    const opponentId =
-      opponent?.id ?? resolveOpponentId(players, selfId);
+    const opponentId = opponent?.id ?? resolveOpponentId(players, selfId);
     const opponentState = normalizePlayerState(players?.[opponentId]);
 
     set({
@@ -175,15 +175,16 @@ export const useGameStore = create((set, get) => ({
     if (!selfId || !state) return;
     const players = state.players || {};
     const selfState = normalizePlayerState(players[selfId]);
-    const opponentId =
-      get().opponent?.id ?? resolveOpponentId(players, selfId);
+    const opponentId = get().opponent?.id ?? resolveOpponentId(players, selfId);
     const opponentState = normalizePlayerState(players[opponentId]);
 
     set({
       matchId,
       score: selfState.score,
       errors: selfState.errors,
-      maxErrors: Number.isFinite(state.maxErrors) ? state.maxErrors : get().maxErrors,
+      maxErrors: Number.isFinite(state.maxErrors)
+        ? state.maxErrors
+        : get().maxErrors,
       opponent: opponentId
         ? {
             id: opponentId,
@@ -241,9 +242,12 @@ export const useGameStore = create((set, get) => ({
       { matchId, puzzleId: currentPuzzleId, result },
       (ack) => {
         if (!ack?.ok) {
-          console.error("match:submit failed", ack?.message || "Erreur serveur");
+          console.error(
+            "match:submit failed",
+            ack?.message || "Erreur serveur",
+          );
         }
-      }
+      },
     );
   },
 
@@ -325,11 +329,7 @@ export const useGameStore = create((set, get) => ({
     if (!matchId) return;
 
     try {
-      const result = await finishMatch(
-        matchId,
-        { reason },
-        { keepalive }
-      );
+      const result = await finishMatch(matchId, { reason }, { keepalive });
       const stateUpdate = buildStateUpdate(result.state);
 
       set({

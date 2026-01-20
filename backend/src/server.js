@@ -21,16 +21,19 @@ const FRONTEND_ORIGIN = getFrontendOrigin();
 const app = express();
 
 // Serve uploaded files (avatars, etc.)
-app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
+app.use("/api/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
 // Dev CORS: allow the Vite frontend to call the API from the browser
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
   );
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+  );
   if (req.method === "OPTIONS") {
     return res.sendStatus(204);
   }
@@ -38,7 +41,7 @@ app.use((req, res, next) => {
 });
 
 // Allow bigger JSON bodies (base64 avatar upload)
-app.use(express.json({ limit: "5mb" }));
+app.use(express.json({ limit: "10mb" }));
 
 app.use("/puzzles", puzzleRoutes);
 app.use("/auth", authRoutes);

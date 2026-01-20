@@ -23,6 +23,7 @@ CREATE INDEX IF NOT EXISTS idx_users_reset_expires ON users(reset_password_expir
 ```
 
 Puis :
+
 ```
 npx prisma db pull
 npx prisma generate
@@ -33,14 +34,17 @@ npx prisma generate
 ## Endpoints
 
 ### 1) Demande de reset
+
 `POST /auth/password/forgot`
 
 Body :
+
 ```json
 { "email": "user@mail.com" }
 ```
 
 Réponse (toujours la même, pour éviter l’énumération) :
+
 ```json
 { "message": "Si un compte existe, un email a été envoyé." }
 ```
@@ -48,9 +52,11 @@ Réponse (toujours la même, pour éviter l’énumération) :
 ---
 
 ### 2) Reset avec token
+
 `POST /auth/password/reset`
 
 Body :
+
 ```json
 {
   "token": "TOKEN_RECU_PAR_MAIL",
@@ -59,6 +65,7 @@ Body :
 ```
 
 Réponse :
+
 ```json
 { "message": "Mot de passe réinitialisé." }
 ```
@@ -68,16 +75,20 @@ Réponse :
 ## Front (UX)
 
 ### Landing (connexion)
+
 - Un bouton **“Mot de passe oublié ?”** est ajouté sur le formulaire de connexion.
 - Il envoie l’email via `POST /auth/password/forgot`.
 
 ### Page de reset
+
 Route : `/reset-password?token=...`
+
 - L’utilisateur saisit le nouveau mot de passe.
 - On appelle `POST /auth/password/reset`.
 - Redirection vers la landing après succès.
 
 Fichiers front :
+
 - `frontend/src/components/Form/Form.jsx`
 - `frontend/src/pages/ResetPassword/ResetPassword.jsx`
 
@@ -86,6 +97,7 @@ Fichiers front :
 ## Email (Nodemailer)
 
 ### Variables d’environnement à ajouter dans `backend/.env`
+
 ```
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465

@@ -36,7 +36,11 @@ function sniffImageMime(buffer) {
   }
 
   // JPEG signature: FF D8 FF
-  if (normalized[0] === 0xff && normalized[1] === 0xd8 && normalized[2] === 0xff) {
+  if (
+    normalized[0] === 0xff &&
+    normalized[1] === 0xd8 &&
+    normalized[2] === 0xff
+  ) {
     return "image/jpeg";
   }
 
@@ -78,7 +82,7 @@ function getAvatarFileUrl(userId) {
       if (!fs.existsSync(filePath)) continue;
       const stat = fs.statSync(filePath);
       const version = Math.floor(stat.mtimeMs);
-      return `/uploads/avatars/user-${userId}.${ext}?v=${version}`;
+      return `/api/uploads/avatars/user-${userId}.${ext}?v=${version}`;
     } catch {
       // ignore
     }

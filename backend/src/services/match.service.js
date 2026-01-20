@@ -26,7 +26,9 @@ function normalizeState(rawState) {
   state.maxErrors = Number.isFinite(state.maxErrors)
     ? state.maxErrors
     : DEFAULT_MAX_ERRORS;
-  state.currentIndex = Number.isFinite(state.currentIndex) ? state.currentIndex : 0;
+  state.currentIndex = Number.isFinite(state.currentIndex)
+    ? state.currentIndex
+    : 0;
   state.puzzleIds = Array.isArray(state.puzzleIds) ? state.puzzleIds : [];
   state.packSize = Number.isFinite(state.packSize)
     ? state.packSize
@@ -34,7 +36,9 @@ function normalizeState(rawState) {
   state.startElo = Number.isFinite(state.startElo)
     ? state.startElo
     : DEFAULT_START_ELO;
-  state.stepElo = Number.isFinite(state.stepElo) ? state.stepElo : DEFAULT_STEP_ELO;
+  state.stepElo = Number.isFinite(state.stepElo)
+    ? state.stepElo
+    : DEFAULT_STEP_ELO;
 
   return state;
 }
@@ -42,10 +46,18 @@ function normalizeState(rawState) {
 function normalizeOutcome(value) {
   if (!value) return null;
   const normalized = String(value).trim().toLowerCase();
-  if (["win", "won", "victory", "completed", "complete", "success"].includes(normalized)) {
+  if (
+    ["win", "won", "victory", "completed", "complete", "success"].includes(
+      normalized,
+    )
+  ) {
     return "win";
   }
-  if (["timeout", "lose", "lost", "fail", "failed", "errors", "abandon"].includes(normalized)) {
+  if (
+    ["timeout", "lose", "lost", "fail", "failed", "errors", "abandon"].includes(
+      normalized,
+    )
+  ) {
     return "lose";
   }
   return normalized;
@@ -56,7 +68,9 @@ function normalizeResult(value) {
   if (value === 1 || value === 0) return Boolean(value);
   if (value === null || value === undefined) return null;
   const normalized = String(value).trim().toLowerCase();
-  if (["true", "1", "yes", "ok", "correct", "success", "win"].includes(normalized)) {
+  if (
+    ["true", "1", "yes", "ok", "correct", "success", "win"].includes(normalized)
+  ) {
     return true;
   }
   if (["false", "0", "no", "wrong", "fail", "lose"].includes(normalized)) {
@@ -263,12 +277,17 @@ async function getNextPuzzle(matchId, userId) {
     });
 
     if (!extraPuzzles.length) {
-      const finished = await finalizeMatch(match, playerId, "no_puzzles", state);
+      const finished = await finalizeMatch(
+        match,
+        playerId,
+        "no_puzzles",
+        state,
+      );
       return { finished: true, state: finished.state, match: finished.match };
     }
 
     state.puzzleIds = state.puzzleIds.concat(
-      extraPuzzles.map((puzzle) => puzzle.id)
+      extraPuzzles.map((puzzle) => puzzle.id),
     );
     updated = true;
   }
@@ -306,7 +325,8 @@ async function submitMatch(matchId, userId, payload) {
 
   const expectedPuzzleId = state.puzzleIds[state.currentIndex];
   const submittedPuzzleId = payload?.puzzleId;
-  const puzzleId = submittedPuzzleId !== undefined ? Number(submittedPuzzleId) : null;
+  const puzzleId =
+    submittedPuzzleId !== undefined ? Number(submittedPuzzleId) : null;
 
   if (!expectedPuzzleId) {
     throw new Error("Aucun puzzle en attente");
@@ -349,8 +369,7 @@ async function submitMatch(matchId, userId, payload) {
   return {
     valid: result,
     finished,
-    nextPuzzleId:
-      state.puzzleIds[state.currentIndex] ?? null,
+    nextPuzzleId: state.puzzleIds[state.currentIndex] ?? null,
     state: finishResponse?.state ?? toPublicState(state),
     match: finishResponse?.match ?? null,
   };

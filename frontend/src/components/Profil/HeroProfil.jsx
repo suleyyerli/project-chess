@@ -55,7 +55,12 @@ const HeroProfil = ({
     setAvatarMessage("");
 
     if (!file) return;
-    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/pjpeg"];
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/pjpeg",
+    ];
     const name = (file.name || "").toLowerCase();
     const looksLikeJpeg = name.endsWith(".jpg") || name.endsWith(".jpeg");
     const looksLikePng = name.endsWith(".png");
@@ -186,7 +191,9 @@ const HeroProfil = ({
                   }
                 }}
                 disabled={saving || (isEditingBio && !canSave)}
-                aria-label={isEditingBio ? "Enregistrer la bio" : "Modifier la bio"}
+                aria-label={
+                  isEditingBio ? "Enregistrer la bio" : "Modifier la bio"
+                }
                 title={isEditingBio ? "Enregistrer" : "Modifier"}
               >
                 {isEditingBio ? <RiCheckFill /> : <RiPencilFill />}

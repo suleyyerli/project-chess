@@ -150,7 +150,7 @@ const Profil = () => {
               setUser(updatedUser);
             } catch (err) {
               setCosmeticError(
-                err?.message || "Impossible de mettre à jour la bannière"
+                err?.message || "Impossible de mettre à jour la bannière",
               );
             } finally {
               setSavingCosmetic(false);
@@ -170,7 +170,7 @@ const Profil = () => {
               setUser(updatedUser);
             } catch (err) {
               setCosmeticError(
-                err?.message || "Impossible de mettre à jour l'emblème"
+                err?.message || "Impossible de mettre à jour l'emblème",
               );
             } finally {
               setSavingCosmetic(false);
