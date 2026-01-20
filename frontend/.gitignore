@@ -7,10 +7,20 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
+# Node
+node_modules/
+
+# Build
 dist
 dist-ssr
+
+# Env
+.env
+.env.*
 *.local
+
+# Prisma
+backend/prisma/
 
 # Editor directories and files
 .vscode/*
