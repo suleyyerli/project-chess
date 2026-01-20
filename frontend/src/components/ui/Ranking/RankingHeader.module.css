@@ -1,0 +1,32 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: linear-gradient(90deg, #c49c35 0%, #9f7e2b 100%);
+  padding: 1.5rem 2rem;
+  margin: -1.2rem -1.2rem 1.5rem;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.iconWrapper {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+}
+
+.iconWrapper img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+}

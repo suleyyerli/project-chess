@@ -36,7 +36,9 @@
   border: 1px solid var(--banner-border);
   background: linear-gradient(240deg, var(--banner-start), var(--banner-end));
   box-shadow: 0 8px 18px var(--banner-shadow);
-  transition: transform 0.25s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.3s ease;
   padding: 0.9rem 1.15rem;
   cursor: pointer;
   display: flex;
@@ -110,6 +112,22 @@
 .banner:not(.locked):hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 22px rgba(0, 0, 0, 0.45);
+}
+
+.selected {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: -2px;
+}
+
+.equipped {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
 /* Couleurs par rang — identiques à UserSkin */

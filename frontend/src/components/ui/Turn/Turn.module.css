@@ -1,0 +1,17 @@
+.turn {
+  background-color: #4d4d4d;
+  border: 2px solid #00000033;
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label {
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

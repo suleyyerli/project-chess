@@ -3,7 +3,7 @@ import styles from "./BannerProfil.module.css";
 import { BANNER_OPTIONS } from "./bannerConfig";
 import { RiLockFill } from "react-icons/ri";
 
-const BannerProfil = ({ nbgame = 0 }) => {
+const BannerProfil = ({ nbgame = 0, selectedId, onSelect }) => {
   const safeNbGame = Number.isFinite(nbgame) ? nbgame : 0;
 
   return (
@@ -20,6 +20,7 @@ const BannerProfil = ({ nbgame = 0 }) => {
             banner.requiredGames > 1
               ? `${banner.requiredGames} parties`
               : "1 partie";
+          const isSelected = selectedId === banner.id;
 
           return (
             <li key={banner.id} className={styles.listItem}>
@@ -28,15 +29,33 @@ const BannerProfil = ({ nbgame = 0 }) => {
                   styles.banner,
                   styles[banner.className],
                   !unlocked ? styles.locked : "",
+                  isSelected ? styles.selected : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
+                role={unlocked ? "button" : undefined}
+                tabIndex={unlocked ? 0 : undefined}
+                onClick={() => {
+                  if (!unlocked || !onSelect) return;
+                  onSelect(banner.id);
+                }}
+                onKeyDown={(e) => {
+                  if (!unlocked || !onSelect) return;
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSelect(banner.id);
+                  }
+                }}
               >
                 <div className={styles.info}>
                   <p className={styles.label}>{banner.label}</p>
                   <p className={styles.requirement}>{requirement}</p>
                   <p className={styles.description}>{banner.description}</p>
                 </div>
+
+                {unlocked && isSelected && (
+                  <span className={styles.equipped}>Équipée</span>
+                )}
 
                 {!unlocked && (
                   <span className={styles.lock}>

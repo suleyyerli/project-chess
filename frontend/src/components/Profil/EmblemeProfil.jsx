@@ -3,12 +3,12 @@ import styles from "./EmblemeProfil.module.css";
 import { EMBLEM_OPTIONS } from "./emblemConfig";
 import { RiLockFill } from "react-icons/ri";
 
-const Embleme = ({ nbtrophy, trophy }) => {
+const Embleme = ({ nbtrophy, trophy, selectedId, onSelect }) => {
   const safeTrophy = Number.isFinite(nbtrophy)
     ? nbtrophy
     : Number.isFinite(trophy)
-    ? trophy
-    : 0;
+      ? trophy
+      : 0;
 
   return (
     <Card variant="dark" className={styles.card}>
@@ -20,6 +20,7 @@ const Embleme = ({ nbtrophy, trophy }) => {
       <div className={styles.grid}>
         {EMBLEM_OPTIONS.map((emblem) => {
           const unlocked = safeTrophy >= emblem.requiredTrophy;
+          const isSelected = selectedId === emblem.id;
 
           return (
             <div key={emblem.id} className={styles.emblemecontain}>
@@ -27,9 +28,23 @@ const Embleme = ({ nbtrophy, trophy }) => {
                 className={[
                   styles.embleme,
                   unlocked ? styles.unlocked : styles.locked,
+                  isSelected ? styles.selected : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
+                role={unlocked ? "button" : undefined}
+                tabIndex={unlocked ? 0 : undefined}
+                onClick={() => {
+                  if (!unlocked || !onSelect) return;
+                  onSelect(emblem.id);
+                }}
+                onKeyDown={(e) => {
+                  if (!unlocked || !onSelect) return;
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSelect(emblem.id);
+                  }
+                }}
               >
                 <img
                   className={styles.image}
@@ -40,6 +55,12 @@ const Embleme = ({ nbtrophy, trophy }) => {
                 {!unlocked && (
                   <figcaption className={styles.lockOverlay}>
                     <RiLockFill />
+                  </figcaption>
+                )}
+
+                {unlocked && isSelected && (
+                  <figcaption className={styles.selectedOverlay}>
+                    Équipé
                   </figcaption>
                 )}
               </figure>

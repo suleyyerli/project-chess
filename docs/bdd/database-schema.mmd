@@ -8,7 +8,7 @@ flowchart TD
     email
     password
     pseudo
-    avatar
+    avatar (BYTEA)
     banner
     emblem
     trophy
@@ -17,12 +17,17 @@ flowchart TD
     nblose
     nbdraw
     bio
-    joinedAt
+    joined_at
     role
-    isactive
+    is_active
     nbreport
-    isbanned
-    banreason
+    is_banned
+    ban_reason
+    last_seen
+    reset_password_token
+    reset_password_expires
+    ban_label
+    banned_until
     "]
 
 
@@ -32,8 +37,7 @@ flowchart TD
     fen
     solution (JSONB)
     elo
-    theme
-    createdAt
+    themes (TEXT[])
     "]
 
 
@@ -41,7 +45,8 @@ flowchart TD
     -----------------------
     id PK
     mode
-    finishedAt
+    finished_at
+    state (JSONB)
     "]
 
 
@@ -50,9 +55,9 @@ flowchart TD
     id PK
     match_id FK
     user_id FK
-    isWinner
-    puzzlesSolved
-    trophiesDelta
+    is_winner
+    puzzles_solved
+    trophies_delta
     "]
 
 
@@ -62,7 +67,17 @@ flowchart TD
     requester_id FK
     receiver_id FK
     status
-    createdAt
+    created_at
+    "]
+
+
+    CHALLENGES["CHALLENGES
+    -----------------------
+    id PK
+    from_user_id FK
+    to_user_id FK
+    status
+    created_at
     "]
 
 
@@ -72,7 +87,7 @@ flowchart TD
     reporter_id FK
     reported_id FK
     reason
-    createdAt
+    created_at
     status
     "]
 
@@ -82,6 +97,10 @@ flowchart TD
     %% USERS - FRIENDS
     USERS -- "1 .. n\n(requests)" --> FRIENDS
     USERS -- "1 .. n\n(receives)" --> FRIENDS
+
+    %% USERS - CHALLENGES
+    USERS -- "1 .. n\n(sent)" --> CHALLENGES
+    USERS -- "1 .. n\n(received)" --> CHALLENGES
 
     %% USERS - REPORTS
     USERS -- "1 .. n\n(reporter)" --> REPORTS

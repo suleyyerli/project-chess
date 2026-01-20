@@ -1,0 +1,89 @@
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header h2 {
+  margin: 0 0 0.35rem;
+}
+
+.header p {
+  margin: 0;
+  color: #c9c9c9;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.input,
+.select {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  color: #f4f4f4;
+}
+
+.input::placeholder {
+  color: #b7b7b7;
+}
+
+.error {
+  color: #e65b4f;
+}
+
+.loading {
+  color: #c9c9c9;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.rowHead,
+.row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.4fr 3fr;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+}
+
+.rowHead {
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 600;
+}
+
+.row {
+  background: rgba(0, 0, 0, 0.35);
+  align-items: center;
+}
+
+.sub {
+  font-size: 0.85rem;
+  color: #bdbdbd;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+@media (max-width: 960px) {
+  .rowHead,
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

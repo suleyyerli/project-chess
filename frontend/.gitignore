@@ -18,6 +18,9 @@ dist-ssr
 .env
 .env.*
 *.local
+.env
+.env.*
+!.env.example
 
 # Prisma
 backend/prisma/

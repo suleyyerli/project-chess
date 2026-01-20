@@ -1,0 +1,135 @@
+services:
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/images/database.dockerfile
+    container_name: chessbattle-db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h 127.0.0.1",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    restart: unless-stopped
+    networks:
+      backend:
+        ipv4_address: 192.168.200.11
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/images/backend.prod.dockerfile
+    container_name: dev-chessbattle-backend
+    environment:
+      - PORT=${PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - MAIL_FROM=${MAIL_FROM}
+      - RESET_PASSWORD_URL=${RESET_PASSWORD_URL}
+
+    volumes:
+      - backend_uploads:/app/uploads
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    networks:
+      backend:
+        ipv4_address: 192.168.200.10
+
+      frontend:
+        ipv4_address: 192.168.201.10
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/images/frontend.prod.dockerfile
+    container_name: dev-chessbattle-frontend
+    restart: unless-stopped
+    networks:
+      frontend:
+        ipv4_address: 192.168.201.11
+  proxy:
+    build:
+      context: .
+      dockerfile: ./docker/images/proxy.prod.dockerfile
+    restart: unless-stopped
+    networks:
+      public:
+        ipv4_address: 192.168.202.1
+
+      frontend:
+        ipv4_address: 192.168.201.12
+
+  migration:
+    build:
+      context: .
+      dockerfile: ./docker/images/migration.prod.dockerfile
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - DATABASE_URL=${DATABASE_URL}
+    networks:
+      backend:
+        ipv4_address: 192.168.200.13
+    depends_on:
+      db:
+        condition: service_healthy
+
+  cloudflared:
+    build:
+      context: .
+      dockerfile: ./docker/images/cloudflared.prod.dockerfile
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    command: tunnel run
+    restart: unless-stopped
+    networks:
+      public:
+        ipv4_address: 192.168.202.2
+
+volumes:
+  db_data:
+  backend_uploads:
+
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.200.0/24
+          gateway: 192.168.200.254
+  frontend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.201.0/24
+          gateway: 192.168.201.254
+  public:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.202.0/24
+          gateway: 192.168.202.254

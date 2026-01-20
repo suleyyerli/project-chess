@@ -71,7 +71,7 @@ export default function App() {
       "Joueur :",
       playerMove,
       " | Solution attendue :",
-      solution[currentStep]
+      solution[currentStep],
     );
 
     if (playerMove === solution[currentStep]) {

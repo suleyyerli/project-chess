@@ -1,0 +1,19 @@
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: #fff;
+}
+
+.page {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+}
+
+.card {
+  width: min(640px, 100%);
+  overflow: hidden;
+  padding: 1.2rem;
+}
