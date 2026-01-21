@@ -435,10 +435,10 @@ PORT=4000
 
 DB_HOST=db
 DB_PORT=5432
-POSTGRES_USER=project_chess_user
+POSTGRES_USER=pxxx
 POSTGRES_PASSWORD=A_RENSEIGNER
-POSTGRES_DB=project_chess_db
-DATABASE_URL=postgresql://project_chess_user:A_RENSEIGNER@db:5432/project_chess_db
+POSTGRES_DB=xxxx
+DATABASE_URL=postgresql://pxxxxxx_user:A_RENSEIGNER@dxxxx:5432/pxxxxxxx
 
 JWT_SECRET=A_RENSEIGNER
 JWT_REFRESH_SECRET=A_RENSEIGNER
