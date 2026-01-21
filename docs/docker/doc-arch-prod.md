@@ -57,14 +57,14 @@ Exemple minimal :
 
 ```bash
 NODE_ENV=production
-PORT=4000
+PORT=XXXX
 
-DB_HOST=db
-DB_PORT=5432
-POSTGRES_USER=project_chess_user
+DB_HOST=dXXX
+DB_PORT=XXX
+POSTGRES_USER=XXXXXX
 POSTGRES_PASSWORD=change_me
 POSTGRES_DB=project_chess_db
-DATABASE_URL=postgresql://project_chess_user:change_me@db:5432/project_chess_db
+DATABASE_URL=postgresql://pXXXXchange_me@dXXX:5432/pXXXXX
 
 JWT_SECRET=change_me
 JWT_REFRESH_SECRET=change_me
@@ -73,7 +73,7 @@ FRONTEND_ORIGIN=https://app.DOMAINE
 RESET_PASSWORD_URL=https://app.DOMAINE/reset-password
 
 SMTP_HOST=smtp.example.com
-SMTP_PORT=465
+SMTP_PORT=4XXX
 SMTP_USER=example@example.com
 SMTP_PASS=change_me
 MAIL_FROM=example@example.com
